@@ -194,7 +194,7 @@
 
 /* ---- Dropdowns & motion ---- */
 .fi-dropdown-panel { border-radius: .9rem !important; animation: ar-fade-up .18s ease both; }
-@keyframes ar-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes ar-fade-up { from { opacity: 0; } to { opacity: 1; } }
 .fi-page { animation: ar-fade-up .35s ease both; }
 .fi-btn { transition: transform .15s ease, box-shadow .15s ease !important; }
 .fi-btn:hover { transform: translateY(-1px); }
@@ -226,3 +226,7 @@
 
 /* ---- Topbar: hide duplicated brand, keep page title ---- */
 .fi-topbar .fi-logo, .fi-topbar a:has(> .fi-logo) { display: none !important; }
+
+/* ---- Buttons polish ---- */
+.fi-btn { font-weight: 700 !important; border-radius: .6rem !important; }
+.fi-btn.fi-color-primary, .fi-btn-color-primary { box-shadow: 0 6px 14px -8px rgba(37,99,235,.7) !important; }
