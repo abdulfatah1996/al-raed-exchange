@@ -39,4 +39,14 @@ return array (
     'singular' => 'Payment account',
     'plural' => 'Payment accounts',
   ),
+  'customer' => 
+  array (
+    'singular' => 'Customer',
+    'plural' => 'Customers',
+  ),
+  'customer_note' => 
+  array (
+    'singular' => 'Note',
+    'plural' => 'Follow-up log',
+  ),
 );

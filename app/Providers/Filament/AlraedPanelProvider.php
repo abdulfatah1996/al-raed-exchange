@@ -61,7 +61,6 @@ class AlraedPanelProvider extends PanelProvider
             ])
             ->navigationItems([
                 $this->placeholder('transfers', 'heroicon-o-arrows-right-left', 2),
-                $this->placeholder('customers', 'heroicon-o-users', 3),
                 $this->placeholder('users', 'heroicon-o-user', 4),
                 $this->placeholder('reports', 'heroicon-o-chart-bar', 5),
             ])

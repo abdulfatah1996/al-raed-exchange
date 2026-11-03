@@ -48,4 +48,13 @@ return array (
   'd_reference' => 'Required payment reference',
   'd_extra' => 'Extra details',
   'choose_type_first' => 'Choose the type first to reveal the relevant fields.',
+  'customer_code' => 'Customer #',
+  'phone' => 'Phone',
+  'whatsapp' => 'WhatsApp',
+  'kyc_status' => 'KYC status',
+  'note' => 'Note',
+  'user' => 'Staff',
+  'notes_log' => 'Follow-up log',
+  'full_name' => 'Full name',
+  'contact' => 'Contact details',
 );

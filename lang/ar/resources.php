@@ -39,4 +39,14 @@ return array (
     'singular' => 'حساب استقبال',
     'plural' => 'حسابات الاستقبال',
   ),
+  'customer' => 
+  array (
+    'singular' => 'عميل',
+    'plural' => 'العملاء',
+  ),
+  'customer_note' => 
+  array (
+    'singular' => 'ملاحظة',
+    'plural' => 'سجل المتابعة',
+  ),
 );
