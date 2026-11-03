@@ -1,10 +1,42 @@
 <?php
 
-return [
-    'groups' => ['settings' => 'Settings', 'operations' => 'Operations', 'finance' => 'Finance', 'system' => 'System'],
-    'country' => ['singular' => 'Country', 'plural' => 'Countries'],
-    'currency' => ['singular' => 'Currency', 'plural' => 'Currencies'],
-    'crypto_network' => ['singular' => 'Network', 'plural' => 'Crypto networks'],
-    'service' => ['singular' => 'Service', 'plural' => 'Services'],
-    'delivery_method' => ['singular' => 'Delivery method', 'plural' => 'Delivery methods'],
-];
+return array (
+  'groups' => 
+  array (
+    'settings' => 'Settings',
+    'operations' => 'Operations',
+    'finance' => 'Finance',
+    'system' => 'System',
+    'accounts' => 'Accounts',
+  ),
+  'country' => 
+  array (
+    'singular' => 'Country',
+    'plural' => 'Countries',
+  ),
+  'currency' => 
+  array (
+    'singular' => 'Currency',
+    'plural' => 'Currencies',
+  ),
+  'crypto_network' => 
+  array (
+    'singular' => 'Network',
+    'plural' => 'Crypto networks',
+  ),
+  'service' => 
+  array (
+    'singular' => 'Service',
+    'plural' => 'Services',
+  ),
+  'delivery_method' => 
+  array (
+    'singular' => 'Delivery method',
+    'plural' => 'Delivery methods',
+  ),
+  'payment_account' => 
+  array (
+    'singular' => 'Payment account',
+    'plural' => 'Payment accounts',
+  ),
+);

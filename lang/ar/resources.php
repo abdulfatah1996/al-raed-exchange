@@ -1,10 +1,42 @@
 <?php
 
-return [
-    'groups' => ['settings' => 'الإعدادات', 'operations' => 'العمليات', 'finance' => 'المالية', 'system' => 'النظام'],
-    'country' => ['singular' => 'دولة', 'plural' => 'الدول'],
-    'currency' => ['singular' => 'عملة', 'plural' => 'العملات'],
-    'crypto_network' => ['singular' => 'شبكة', 'plural' => 'شبكات الكريبتو'],
-    'service' => ['singular' => 'خدمة', 'plural' => 'الخدمات'],
-    'delivery_method' => ['singular' => 'وسيلة تسليم', 'plural' => 'وسائل التسليم'],
-];
+return array (
+  'groups' => 
+  array (
+    'settings' => 'الإعدادات',
+    'operations' => 'العمليات',
+    'finance' => 'المالية',
+    'system' => 'النظام',
+    'accounts' => 'الحسابات',
+  ),
+  'country' => 
+  array (
+    'singular' => 'دولة',
+    'plural' => 'الدول',
+  ),
+  'currency' => 
+  array (
+    'singular' => 'عملة',
+    'plural' => 'العملات',
+  ),
+  'crypto_network' => 
+  array (
+    'singular' => 'شبكة',
+    'plural' => 'شبكات الكريبتو',
+  ),
+  'service' => 
+  array (
+    'singular' => 'خدمة',
+    'plural' => 'الخدمات',
+  ),
+  'delivery_method' => 
+  array (
+    'singular' => 'وسيلة تسليم',
+    'plural' => 'وسائل التسليم',
+  ),
+  'payment_account' => 
+  array (
+    'singular' => 'حساب استقبال',
+    'plural' => 'حسابات الاستقبال',
+  ),
+);
