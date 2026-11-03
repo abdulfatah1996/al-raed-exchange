@@ -6,6 +6,7 @@ use App\Enums\PaymentAccountStatus;
 use App\Enums\PaymentAccountType;
 use App\Filament\Resources\PaymentAccounts\Pages\ManagePaymentAccounts;
 use App\Filament\Resources\ReferenceResource;
+use App\Models\CryptoNetwork;
 use App\Models\PaymentAccount;
 use Filament\Actions\Action;
 use Filament\Actions\EditAction;
@@ -41,12 +42,20 @@ class PaymentAccountResource extends ReferenceResource
         return 20;
     }
 
+    /** Current "type" value as a plain string (the form state may hold the enum instance). */
+    protected static function typeOf(Get $get): ?string
+    {
+        $type = $get('type');
+
+        return $type instanceof \BackedEnum ? $type->value : $type;
+    }
+
     public static function form(Schema $schema): Schema
     {
-        $is = fn (string ...$types) => fn (Get $get): bool => in_array($get('type'), $types, true);
+        $is = fn (string ...$types) => fn (Get $get): bool => in_array(static::typeOf($get), $types, true);
 
         return $schema->components([
-            Section::make(__('fields.basic'))->columns(2)->schema([
+            Section::make(__('fields.basic'))->columns(2)->columnSpanFull()->schema([
                 Select::make('type')->label(__('fields.type'))->options(PaymentAccountType::class)->required()->live()->native(false),
                 TextInput::make('internal_name')->label(__('fields.internal_name'))->required()->maxLength(100)->placeholder('PayPal #1 — أحمد'),
                 Select::make('service_id')->label(__('fields.service'))->relationship('service', static::nameColumn())->searchable()->preload()->nullable(),
@@ -56,28 +65,30 @@ class PaymentAccountResource extends ReferenceResource
                 Select::make('status')->label(__('fields.status'))->options(PaymentAccountStatus::class)->default('active')->required()->native(false),
             ]),
 
-            Section::make(__('fields.receiving_details'))->columns(2)->schema([
-                TextInput::make('details.email')->label(__('fields.d_email'))->email()->visible($is('paypal')),
-                TextInput::make('details.paypal_me')->label(__('fields.d_paypal_me'))->url()->visible($is('paypal')),
+            Section::make(__('fields.receiving_details'))->columns(2)->columnSpanFull()
+                ->description(fn (Get $get): ?string => static::typeOf($get) ? null : __('fields.choose_type_first'))
+                ->schema([
+                    TextInput::make('details.email')->label(__('fields.d_email'))->email()->visible($is('paypal')),
+                    TextInput::make('details.paypal_me')->label(__('fields.d_paypal_me'))->url()->visible($is('paypal')),
 
-                TextInput::make('details.bank_name')->label(__('fields.d_bank_name'))->visible($is('bank')),
-                TextInput::make('details.account_number')->label(__('fields.d_account_number'))->visible($is('bank')),
-                TextInput::make('details.iban')->label(__('fields.d_iban'))->visible($is('bank')),
-                TextInput::make('details.swift')->label(__('fields.d_swift'))->visible($is('bank')),
-                TextInput::make('details.reference')->label(__('fields.d_reference'))->visible($is('bank')),
+                    TextInput::make('details.bank_name')->label(__('fields.d_bank_name'))->visible($is('bank')),
+                    TextInput::make('details.account_number')->label(__('fields.d_account_number'))->visible($is('bank')),
+                    TextInput::make('details.iban')->label(__('fields.d_iban'))->visible($is('bank')),
+                    TextInput::make('details.swift')->label(__('fields.d_swift'))->visible($is('bank')),
+                    TextInput::make('details.reference')->label(__('fields.d_reference'))->visible($is('bank')),
 
-                Select::make('details.network')->label(__('fields.d_network'))->visible($is('crypto_wallet'))
-                    ->options(fn () => \App\Models\CryptoNetwork::active()->orderBy('sort')->pluck('name', 'code')->all())->native(false),
-                TextInput::make('details.address')->label(__('fields.d_address'))->visible($is('crypto_wallet', 'instapay'))->columnSpanFull(),
+                    Select::make('details.network')->label(__('fields.d_network'))->visible($is('crypto_wallet'))->native(false)
+                        ->options(fn () => CryptoNetwork::active()->orderBy('sort')->pluck('name', 'code')->all()),
+                    TextInput::make('details.address')->label(__('fields.d_address'))->visible($is('crypto_wallet', 'instapay'))->columnSpanFull(),
 
-                TextInput::make('details.phone')->label(__('fields.d_phone'))->tel()->visible($is('ewallet', 'cliq', 'instapay', 'vodafone_cash')),
-                TextInput::make('details.alias')->label(__('fields.d_alias'))->visible($is('cliq')),
-                TextInput::make('details.wallet_id')->label(__('fields.d_wallet_id'))->visible($is('ewallet')),
+                    TextInput::make('details.phone')->label(__('fields.d_phone'))->tel()->visible($is('ewallet', 'cliq', 'instapay', 'vodafone_cash')),
+                    TextInput::make('details.alias')->label(__('fields.d_alias'))->visible($is('cliq')),
+                    TextInput::make('details.wallet_id')->label(__('fields.d_wallet_id'))->visible($is('ewallet')),
 
-                Textarea::make('details.extra')->label(__('fields.d_extra'))->rows(3)->visible($is('other'))->columnSpanFull(),
-            ]),
+                    Textarea::make('details.extra')->label(__('fields.d_extra'))->rows(3)->visible($is('other'))->columnSpanFull(),
+                ]),
 
-            Section::make(__('fields.limits'))->columns(3)->schema([
+            Section::make(__('fields.limits'))->columns(3)->columnSpanFull()->schema([
                 TextInput::make('min_amount')->label(__('fields.min_amount'))->numeric()->minValue(0),
                 TextInput::make('max_amount')->label(__('fields.max_amount'))->numeric()->minValue(0),
                 TextInput::make('daily_cap')->label(__('fields.daily_cap'))->numeric()->minValue(0),
@@ -110,7 +121,7 @@ class PaymentAccountResource extends ReferenceResource
                 SelectFilter::make('country_id')->label(__('fields.country'))->relationship('country', static::nameColumn())->preload(),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()->modalWidth('4xl'),
                 Action::make('pause')->label(__('enums.payment_account_status.paused'))->icon('heroicon-o-pause-circle')->color('warning')
                     ->visible(fn (PaymentAccount $r) => $r->status === PaymentAccountStatus::Active)
                     ->requiresConfirmation()->action(fn (PaymentAccount $r) => $r->update(['status' => PaymentAccountStatus::Paused])),

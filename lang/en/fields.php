@@ -47,4 +47,5 @@ return array (
   'd_alias' => 'Alias',
   'd_reference' => 'Required payment reference',
   'd_extra' => 'Extra details',
+  'choose_type_first' => 'Choose the type first to reveal the relevant fields.',
 );
