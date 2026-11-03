@@ -6,5 +6,6 @@ return [
     'coming_soon' => 'Website under construction',
     'whatsapp' => 'Contact via WhatsApp',
     'switch_language' => 'العربية',
-    'login_heading' => 'Sign in',
+    'login_heading' => 'Welcome back',
+    'login_subheading' => 'Sign in to Al Raed Exchange',
 ];

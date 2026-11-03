@@ -6,5 +6,6 @@ return [
     'coming_soon' => 'الموقع قيد الإنشاء',
     'whatsapp' => 'تواصل عبر واتساب',
     'switch_language' => 'English',
-    'login_heading' => 'تسجيل الدخول',
+    'login_heading' => 'مرحبًا بعودتك',
+    'login_subheading' => 'سجّل الدخول إلى الرائد للصرافة',
 ];

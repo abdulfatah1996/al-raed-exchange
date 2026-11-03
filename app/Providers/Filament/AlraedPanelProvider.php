@@ -34,6 +34,7 @@ class AlraedPanelProvider extends PanelProvider
             ->path('alraed')
             ->login(Login::class)
             ->brandName(fn (): string => __('site.brand'))
+            ->brandLogo(fn () => request()->routeIs('filament.alraed.auth.login') ? view('filament.login-badge') : null)
             ->colors([
                 'primary' => Color::hex('#C9A227'),
                 'gray' => Color::Slate,

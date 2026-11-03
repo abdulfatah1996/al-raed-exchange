@@ -14,6 +14,6 @@ class Login extends BaseLogin
 
     public function getSubheading(): string|Htmlable|null
     {
-        return __('site.tagline');
+        return __('site.login_subheading');
     }
 }
