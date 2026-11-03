@@ -64,7 +64,6 @@ class AlraedPanelProvider extends PanelProvider
                 $this->placeholder('customers', 'heroicon-o-users', 3),
                 $this->placeholder('users', 'heroicon-o-user', 4),
                 $this->placeholder('reports', 'heroicon-o-chart-bar', 5),
-                $this->placeholder('settings', 'heroicon-o-cog-6-tooth', 6),
             ])
             ->renderHook(
                 PanelsRenderHook::SIDEBAR_NAV_START,
