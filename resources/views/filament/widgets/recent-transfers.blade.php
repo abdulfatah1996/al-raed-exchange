@@ -20,7 +20,7 @@
                             <td>{{ $r['ref'] }}</td>
                             <td>{{ $r['customer'] }}</td>
                             <td dir="ltr" style="text-align:start">{{ $r['amount'] }}</td>
-                            <td><span class="ar-badge ar-badge--{{ $r['status'] }}">{{ __('dashboard.statuses.' . $r['status']) }}</span></td>
+                            <td><span class="ar-badge ar-badge--{{ $r['status'] }}">{{ $r['status_label'] ?? __('dashboard.statuses.' . $r['status']) }}</span></td>
                         </tr>
                     @endforeach
                 </tbody>

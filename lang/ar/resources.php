@@ -49,4 +49,9 @@ return array (
     'singular' => 'ملاحظة',
     'plural' => 'سجل المتابعة',
   ),
+  'transfer' => 
+  array (
+    'singular' => 'حوالة',
+    'plural' => 'الحوالات',
+  ),
 );

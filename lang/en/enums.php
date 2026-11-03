@@ -41,4 +41,31 @@ return array (
     'pending' => 'Pending',
     'verified' => 'Verified',
   ),
+  'transfer_type' => 
+  array (
+    'receive' => 'Receive transfer',
+    'send' => 'Send transfer',
+    'usdt_withdraw' => 'USDT withdrawal',
+    'usdt_deposit' => 'USDT deposit',
+    'exchange' => 'Currency exchange',
+    'bank_delivery' => 'Bank delivery',
+    'wallet_delivery' => 'Wallet delivery',
+    'international' => 'International transfer',
+    'adjustment' => 'Adjustment',
+  ),
+  'transfer_status' => 
+  array (
+    'new' => 'New',
+    'pending_pricing' => 'Pending pricing',
+    'pending_customer_approval' => 'Pending customer approval',
+    'pending_transfer' => 'Pending transfer',
+    'pending_verification' => 'Pending verification',
+    'under_review' => 'Under review',
+    'approved' => 'Approved',
+    'in_progress' => 'In progress',
+    'delivered' => 'Delivered',
+    'cancelled' => 'Cancelled',
+    'rejected' => 'Rejected',
+    'on_hold' => 'On hold',
+  ),
 );

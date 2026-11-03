@@ -60,7 +60,6 @@ class AlraedPanelProvider extends PanelProvider
                     ->url(fn (): string => route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar')),
             ])
             ->navigationItems([
-                $this->placeholder('transfers', 'heroicon-o-arrows-right-left', 2),
                 $this->placeholder('users', 'heroicon-o-user', 4),
                 $this->placeholder('reports', 'heroicon-o-chart-bar', 5),
             ])

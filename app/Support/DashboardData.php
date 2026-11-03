@@ -2,43 +2,54 @@
 
 namespace App\Support;
 
-use Illuminate\Support\Facades\Schema;
+use App\Enums\TransferStatus;
+use App\Models\Customer;
+use App\Models\Transfer;
 
-/** Sample data until the transfers module exists; each method becomes a real query later. */
 class DashboardData
 {
     public static function isDemo(): bool
     {
-        return ! Schema::hasTable('transfers');
+        return false;
     }
 
     public static function kpis(): array
     {
+        $today = Transfer::whereDate('created_at', today());
+        $usdToday = (clone $today)->whereHas('sendCurrency', fn ($q) => $q->where('code', 'USD'))->sum('send_amount');
+
         return [
-            ['label' => __('dashboard.kpi.today'), 'value' => '24', 'unit' => null, 'icon' => 'heroicon-o-arrows-right-left', 'tone' => 'blue'],
-            ['label' => __('dashboard.kpi.total'), 'value' => '1,248,500.00', 'unit' => 'USD', 'icon' => 'heroicon-o-banknotes', 'tone' => 'teal'],
-            ['label' => __('dashboard.kpi.new_customers'), 'value' => '8', 'unit' => null, 'icon' => 'heroicon-o-user-plus', 'tone' => 'green'],
-            ['label' => __('dashboard.kpi.pending'), 'value' => '3', 'unit' => null, 'icon' => 'heroicon-o-clock', 'tone' => 'orange'],
+            ['label' => __('dashboard.kpi.today'), 'value' => (string) (clone $today)->count(), 'unit' => null, 'icon' => 'heroicon-o-arrows-right-left', 'tone' => 'blue'],
+            ['label' => __('dashboard.kpi.total'), 'value' => number_format((float) $usdToday, 2), 'unit' => 'USD', 'icon' => 'heroicon-o-banknotes', 'tone' => 'teal'],
+            ['label' => __('dashboard.kpi.new_customers'), 'value' => (string) Customer::where('created_at', '>=', now()->subDays(7))->count(), 'unit' => null, 'icon' => 'heroicon-o-user-plus', 'tone' => 'green'],
+            ['label' => __('dashboard.kpi.pending'), 'value' => (string) Transfer::whereIn('status', [TransferStatus::PendingVerification, TransferStatus::UnderReview, TransferStatus::OnHold])->count(), 'unit' => null, 'icon' => 'heroicon-o-clock', 'tone' => 'orange'],
         ];
     }
 
     public static function recent(): array
     {
-        return [
-            ['ref' => '#10458', 'customer' => 'أحمد العبسي', 'amount' => '250,000.00 USD', 'status' => 'completed'],
-            ['ref' => '#10457', 'customer' => 'ريم الحارثي', 'amount' => '75,000.00 USD', 'status' => 'review'],
-            ['ref' => '#10456', 'customer' => 'خالد البيشي', 'amount' => '500,000.00 USD', 'status' => 'completed'],
-            ['ref' => '#10455', 'customer' => 'سارة القحطاني', 'amount' => '120,000.00 USD', 'status' => 'review'],
-        ];
+        return Transfer::with(['customer', 'sendCurrency'])->latest('id')->take(5)->get()->map(fn (Transfer $t) => [
+            'ref' => $t->reference,
+            'customer' => $t->customer?->name ?? '—',
+            'amount' => $t->send_amount === null ? '—' : rtrim(rtrim(number_format((float) $t->send_amount, 8, '.', ','), '0'), '.') . ' ' . ($t->sendCurrency?->code ?? ''),
+            'status' => match ($t->status) {
+                TransferStatus::Delivered => 'completed',
+                TransferStatus::Cancelled, TransferStatus::Rejected => 'cancelled',
+                default => 'review',
+            },
+            'status_label' => $t->status->getLabel(),
+        ])->all();
     }
 
     public static function weekly(): array
     {
-        $labels = [];
+        $labels = $data = [];
         for ($i = 6; $i >= 0; $i--) {
-            $labels[] = now()->subDays($i)->translatedFormat('l');
+            $day = now()->subDays($i);
+            $labels[] = $day->translatedFormat('l');
+            $data[] = Transfer::whereDate('created_at', $day->toDateString())->count();
         }
 
-        return ['labels' => $labels, 'data' => [12, 16, 14, 19, 23, 21, 26]];
+        return ['labels' => $labels, 'data' => $data];
     }
 }

@@ -41,4 +41,31 @@ return array (
     'pending' => 'قيد التحقق',
     'verified' => 'موثّق',
   ),
+  'transfer_type' => 
+  array (
+    'receive' => 'استقبال حوالة',
+    'send' => 'إرسال حوالة',
+    'usdt_withdraw' => 'سحب USDT',
+    'usdt_deposit' => 'إيداع USDT',
+    'exchange' => 'تحويل بين عملتين',
+    'bank_delivery' => 'تسليم بنكي',
+    'wallet_delivery' => 'تسليم محفظة',
+    'international' => 'حوالة دولية',
+    'adjustment' => 'تسوية / تعديل موثّق',
+  ),
+  'transfer_status' => 
+  array (
+    'new' => 'جديدة',
+    'pending_pricing' => 'بانتظار التسعير',
+    'pending_customer_approval' => 'بانتظار موافقة العميل',
+    'pending_transfer' => 'بانتظار التحويل',
+    'pending_verification' => 'بانتظار التشييك',
+    'under_review' => 'قيد المراجعة',
+    'approved' => 'تم الاعتماد',
+    'in_progress' => 'قيد التنفيذ',
+    'delivered' => 'تم التسليم',
+    'cancelled' => 'ملغاة',
+    'rejected' => 'مرفوضة',
+    'on_hold' => 'معلّقة',
+  ),
 );

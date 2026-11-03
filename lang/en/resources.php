@@ -49,4 +49,9 @@ return array (
     'singular' => 'Note',
     'plural' => 'Follow-up log',
   ),
+  'transfer' => 
+  array (
+    'singular' => 'Transfer',
+    'plural' => 'Transfers',
+  ),
 );
