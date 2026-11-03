@@ -47,6 +47,7 @@ class AlraedPanelProvider extends PanelProvider
             ->darkMode(true)
             ->sidebarWidth('17rem')
             ->spa()
+            ->spaUrlExceptions(fn (): array => [url('/lang/*')])
             ->databaseNotifications()
             ->databaseNotificationsPolling('60s')
             ->assets([
