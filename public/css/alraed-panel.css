@@ -195,7 +195,6 @@
 /* ---- Dropdowns & motion ---- */
 .fi-dropdown-panel { border-radius: .9rem !important; animation: ar-fade-up .18s ease both; }
 @keyframes ar-fade-up { from { opacity: 0; } to { opacity: 1; } }
-.fi-page { animation: ar-fade-up .35s ease both; }
 .fi-btn { transition: transform .15s ease, box-shadow .15s ease !important; }
 .fi-btn:hover { transform: translateY(-1px); }
 
@@ -230,3 +229,13 @@
 /* ---- Buttons polish ---- */
 .fi-btn { font-weight: 700 !important; border-radius: .6rem !important; }
 .fi-btn.fi-color-primary, .fi-btn-color-primary { box-shadow: 0 6px 14px -8px rgba(37,99,235,.7) !important; }
+
+/* ---- Modals: above everything, blurred backdrop ---- */
+.fi-page, .fi-main, .fi-main-ctn { animation: none !important; transform: none !important; filter: none !important; }
+.fi-modal-close-overlay, .fi-modal-overlay {
+  background-color: rgba(11, 31, 58, .55) !important;
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+}
+.fi-modal-window { border-radius: 1.1rem !important; box-shadow: 0 30px 80px -20px rgba(0,0,0,.5) !important; }
+.fi-modal-header { padding: 1.25rem 1.5rem !important; }
+.fi-modal-heading { font-weight: 800 !important; }
