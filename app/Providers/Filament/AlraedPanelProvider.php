@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\Login;
 use App\Http\Middleware\SetLocale;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -10,6 +11,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
+use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
@@ -24,11 +26,13 @@ class AlraedPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        $css = public_path('css/alraed-panel.css');
+
         return $panel
             ->default()
             ->id('alraed')
             ->path('alraed')
-            ->login()
+            ->login(Login::class)
             ->brandName(fn (): string => __('site.brand'))
             ->colors([
                 'primary' => Color::hex('#C9A227'),
@@ -42,6 +46,9 @@ class AlraedPanelProvider extends PanelProvider
             ->darkMode(true)
             ->sidebarCollapsibleOnDesktop()
             ->spa()
+            ->assets([
+                Css::make('alraed-panel', asset('css/alraed-panel.css') . '?v=' . (file_exists($css) ? filemtime($css) : '1')),
+            ])
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): string => view('filament.language-switcher')->render(),

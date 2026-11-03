@@ -1,0 +1,40 @@
+/* ===== Al Raed Exchange — panel styles ===== */
+:root {
+  --ar-navy: #0B1F3A;
+  --ar-navy-2: #16325C;
+  --ar-gold: #C9A227;
+  --ar-gold-2: #E3C15A;
+}
+
+/* ---- Login / simple pages ---- */
+.fi-simple-layout {
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 500px at 50% -10%, var(--ar-navy-2) 0%, transparent 70%),
+    radial-gradient(700px 350px at 100% 110%, rgba(201,162,39,.22) 0%, transparent 70%),
+    var(--ar-navy) !important;
+}
+.fi-simple-main {
+  border-radius: 1.25rem !important;
+  border-top: 4px solid var(--ar-gold) !important;
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(201,162,39,.25) !important;
+  padding: 2.25rem !important;
+}
+.dark .fi-simple-main { background-color: #0F2746 !important; }
+
+.fi-simple-layout .fi-logo {
+  color: var(--ar-gold) !important;
+  font-size: 1.75rem !important;
+  font-weight: 800 !important;
+  letter-spacing: .2px;
+}
+.fi-simple-header-heading { font-weight: 700 !important; }
+.fi-simple-header-subheading { color: var(--ar-gold) !important; font-weight: 600 !important; letter-spacing: .6px; }
+
+.fi-simple-main .fi-input-wrp { border-radius: .8rem !important; }
+.fi-simple-main .fi-btn {
+  border-radius: .8rem !important;
+  font-weight: 700 !important;
+  letter-spacing: .3px;
+  box-shadow: 0 10px 24px -10px rgba(201,162,39,.7) !important;
+}
