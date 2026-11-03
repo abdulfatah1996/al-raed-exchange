@@ -9,13 +9,12 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
+use App\Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
 use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
-use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -45,7 +44,7 @@ class AlraedPanelProvider extends PanelProvider
             ])
             ->font('Cairo')
             ->darkMode(true)
-            ->sidebarCollapsibleOnDesktop()
+            ->sidebarWidth('17rem')
             ->spa()
             ->assets([
                 Css::make('alraed-panel', asset('css/alraed-panel.css') . '?v=' . (file_exists($css) ? filemtime($css) : '1')),
@@ -56,6 +55,10 @@ class AlraedPanelProvider extends PanelProvider
                     ->icon('heroicon-o-language')
                     ->url(fn (): string => route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar')),
             ])
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_FOOTER,
+                fn (): string => view('filament.sidebar-user')->render(),
+            )
             ->renderHook(
                 PanelsRenderHook::SIMPLE_PAGE_START,
                 fn (): string => request()->routeIs('filament.alraed.auth.login') ? view('filament.login-hero')->render() : '',
@@ -71,7 +74,6 @@ class AlraedPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                AccountWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

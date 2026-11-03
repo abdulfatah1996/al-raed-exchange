@@ -147,3 +147,28 @@
 .fi-btn:hover { transform: translateY(-1px); }
 .fi-btn:active { transform: translateY(0); }
 .fi-ta-row { transition: background-color .15s ease; }
+
+/* ---- Sidebar header & user card ---- */
+.fi-sidebar-header { padding-inline: 1.25rem !important; }
+.ar-sidebar-user { display:flex; align-items:center; gap:.65rem; margin:.5rem; padding:.8rem .9rem; border-radius:.85rem; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.07); }
+.ar-sidebar-avatar { width:2.25rem; height:2.25rem; border-radius:9999px; background:var(--ar-gold); color:#0B1F3A; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none; }
+.ar-sidebar-user-info { min-width:0; flex:1; }
+.ar-sidebar-user-name { color:#fff; font-size:.85rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ar-sidebar-user-role { color:rgba(255,255,255,.5); font-size:.7rem; }
+.ar-sidebar-logout { color:rgba(255,255,255,.55); background:none; border:0; cursor:pointer; padding:.4rem; border-radius:.5rem; display:flex; transition:color .15s, background-color .15s; }
+.ar-sidebar-logout:hover { color:#fff; background:rgba(255,255,255,.1); }
+
+/* ---- Page header ---- */
+.fi-page-heading, .fi-header-heading { font-weight: 800 !important; }
+.fi-page-subheading, .fi-header-subheading { color: var(--ar-muted) !important; }
+
+/* ---- Stats cards ---- */
+.fi-wi-stats-overview-stat { position: relative; padding: 1.25rem 1.25rem 0 !important; overflow: hidden; }
+.fi-wi-stats-overview-stat-label { color: var(--ar-muted) !important; font-size: .8rem !important; }
+.fi-wi-stats-overview-stat-value { font-size: 1.8rem !important; }
+.fi-wi-stats-overview-stat-icon { position:absolute; top:1rem; inset-inline-end:1rem; width:2.5rem; height:2.5rem; padding:.55rem; border-radius:.75rem; background:rgba(37,99,235,.1); color:#2563EB; }
+.fi-wi-stats-overview-stat-description { font-size:.75rem !important; }
+.fi-wi-stats-overview-stat-chart { margin-top: .5rem; }
+
+/* ---- Chart widgets ---- */
+.fi-wi-chart .fi-section-header-heading { font-weight: 800 !important; }
