@@ -34,7 +34,6 @@ class AlraedPanelProvider extends PanelProvider
             ->path('alraed')
             ->login(Login::class)
             ->brandName(fn (): string => __('site.brand'))
-            ->brandLogo(fn () => request()->routeIs('filament.alraed.auth.login') ? view('filament.login-hero') : null)
             ->colors([
                 'primary' => Color::hex('#C9A227'),
                 'gray' => Color::Slate,
@@ -53,6 +52,10 @@ class AlraedPanelProvider extends PanelProvider
             ->renderHook(
                 PanelsRenderHook::USER_MENU_BEFORE,
                 fn (): string => view('filament.language-switcher')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::SIMPLE_PAGE_START,
+                fn (): string => request()->routeIs('filament.alraed.auth.login') ? view('filament.login-hero')->render() : '',
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,

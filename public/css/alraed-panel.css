@@ -92,3 +92,13 @@
   color: var(--ar-muted); font-size: .85rem; font-weight: 500;
 }
 .dark .ar-login-footer { border-color: rgba(255,255,255,.1); color: #9CA3AF; }
+
+/* ---- Hero placement fix ---- */
+.fi-simple-layout .fi-logo { display: none !important; }
+.fi-simple-page { overflow: visible; }
+.fi-simple-page > .ar-login-hero {
+  display: block;
+  width: calc(100% + 4.5rem);
+  max-width: none;
+  margin: -2.5rem -2.25rem 1.5rem !important;
+}
