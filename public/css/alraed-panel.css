@@ -100,104 +100,101 @@
 .dark .ar-login-footer { border-color: rgba(255,255,255,.1); color: #9CA3AF; }
 
 /* =========================================================
-   Panel shell: sidebar / topbar / content / cards / motion
+   Panel theme (light & dark)
    ========================================================= */
-.fi-body { background-color: #F3F6FB !important; }
-.dark .fi-body { background-color: #0C1526 !important; }
-
-/* ---- Sidebar (dark navy) ---- */
-.fi-sidebar, .fi-sidebar-header, .fi-sidebar-nav {
-  background-color: #0B1F3A !important;
-  border-color: rgba(255,255,255,.06) !important;
+:root {
+  --ar-bg: #EEF4FB; --ar-card: #FFFFFF; --ar-text: #0B2A55; --ar-text-2: #334155; --ar-muted: #64748B;
+  --ar-line: #E3EAF3; --ar-head: #EEF4FB; --ar-accent: #1D7CF2;
+  --ar-side-1: #0B2A55; --ar-side-2: #0E3F80; --ar-shadow: 0 8px 24px -14px rgba(11,42,85,.25);
 }
-.fi-sidebar-header .fi-logo { color: #fff !important; font-weight: 800 !important; }
-.fi-sidebar-group-label { color: rgba(255,255,255,.45) !important; font-size: .68rem !important; letter-spacing: .08em; }
-.fi-sidebar-group-collapse-button, .fi-sidebar-group-collapse-button svg { color: rgba(255,255,255,.5) !important; }
-.fi-sidebar-item-btn { border-radius: .65rem !important; transition: background-color .18s ease, color .18s ease !important; }
-.fi-sidebar-item-label { color: rgba(255,255,255,.75) !important; font-weight: 500 !important; }
-.fi-sidebar-item-icon { color: rgba(255,255,255,.5) !important; }
-.fi-sidebar-item-btn:hover { background-color: rgba(255,255,255,.07) !important; }
-.fi-sidebar-item-btn:hover .fi-sidebar-item-label, .fi-sidebar-item-btn:hover .fi-sidebar-item-icon { color: #fff !important; }
-.fi-sidebar-item.fi-active > .fi-sidebar-item-btn, .fi-sidebar-item-btn.fi-active { background-color: rgba(59,130,246,.2) !important; }
-.fi-sidebar-item.fi-active .fi-sidebar-item-label, .fi-sidebar-item.fi-active .fi-sidebar-item-icon,
-.fi-sidebar-item-btn.fi-active .fi-sidebar-item-label, .fi-sidebar-item-btn.fi-active .fi-sidebar-item-icon { color: #93C5FD !important; }
-.fi-sidebar-item-badge { background-color: var(--ar-gold) !important; color: #0B1F3A !important; }
+.dark {
+  --ar-bg: #0B1220; --ar-card: #141F33; --ar-text: #E6EDF7; --ar-text-2: #CBD5E1; --ar-muted: #94A3B8;
+  --ar-line: rgba(255,255,255,.08); --ar-head: rgba(255,255,255,.05);
+  --ar-side-1: #08172E; --ar-side-2: #0B2B57; --ar-shadow: none;
+}
+
+.fi-body { background-color: var(--ar-bg) !important; line-height: 1.7; }
+.fi-main { padding-top: 1.25rem !important; }
+
+/* ---- Sidebar ---- */
+.fi-sidebar { background: linear-gradient(180deg, var(--ar-side-1) 0%, var(--ar-side-2) 100%) !important; border: 0 !important; }
+.fi-sidebar-header, .fi-sidebar-nav { background: transparent !important; border: 0 !important; box-shadow: none !important; }
+.fi-sidebar-header { padding: 1.5rem 1.25rem 1.1rem !important; margin: 0 1rem; border-bottom: 1px solid rgba(255,255,255,.15) !important; height: auto !important; }
+.ar-brand { display: flex; flex-direction: column; align-items: center; gap: .35rem; width: 100%; }
+.ar-brand-mark { font-size: 3.2rem; font-weight: 900; line-height: 1; color: #fff; letter-spacing: -.05em; }
+.ar-brand-name { color: #fff; font-size: 1.3rem; font-weight: 800; }
+.fi-sidebar-nav { padding: 1rem .9rem !important; }
+.fi-sidebar-item-btn { border-radius: .85rem !important; padding: .8rem 1rem !important; transition: background-color .18s ease, transform .18s ease !important; }
+.fi-sidebar-item-label { color: #fff !important; font-size: 1.05rem !important; font-weight: 600 !important; }
+.fi-sidebar-item-icon { color: #fff !important; width: 1.5rem !important; height: 1.5rem !important; }
+.fi-sidebar-item-btn:hover { background-color: rgba(255,255,255,.1) !important; }
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn, .fi-sidebar-item-btn.fi-active {
+  background-color: var(--ar-accent) !important; box-shadow: 0 10px 20px -10px rgba(29,124,242,.8);
+}
+.fi-sidebar-item-badge, .fi-badge.fi-sidebar-item-badge { background: rgba(255,255,255,.14) !important; color: #fff !important; font-size: .65rem !important; }
 .fi-sidebar-close-overlay { backdrop-filter: blur(2px); }
 
-/* ---- Topbar ---- */
-.fi-topbar nav { background-color: #fff !important; border-bottom: 1px solid #E8ECF3 !important; box-shadow: none !important; }
-.dark .fi-topbar nav { background-color: #111D33 !important; border-color: rgba(255,255,255,.07) !important; }
-
-/* ---- Cards ---- */
-.fi-section, .fi-wi-stats-overview-stat, .fi-ta-ctn, .fi-wi-widget > .fi-section {
-  border-radius: 1rem !important;
-  border: 1px solid #E8ECF3 !important;
-  box-shadow: 0 1px 2px rgba(16,24,40,.04) !important;
-  transition: transform .2s ease, box-shadow .2s ease;
+/* ---- Topbar (floating card) ---- */
+.fi-topbar { background: transparent !important; padding: 1rem 1.25rem 0 !important; }
+.fi-topbar nav, .fi-topbar > nav {
+  background-color: var(--ar-card) !important; border: 1px solid var(--ar-line) !important; border-radius: 1rem !important;
+  box-shadow: var(--ar-shadow) !important; padding-inline: 1.5rem !important; height: 4.25rem !important;
 }
-.dark .fi-section, .dark .fi-wi-stats-overview-stat, .dark .fi-ta-ctn { border-color: rgba(255,255,255,.07) !important; }
-.fi-wi-stats-overview-stat:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -16px rgba(11,31,58,.3) !important; }
-.fi-wi-stats-overview-stat-value { font-weight: 800 !important; }
-
-/* ---- Motion ---- */
-@keyframes ar-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-.fi-page { animation: ar-fade-up .35s ease both; }
-.fi-dropdown-panel { animation: ar-fade-up .18s ease both; border-radius: .9rem !important; }
-.fi-btn { transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease !important; }
-.fi-btn:hover { transform: translateY(-1px); }
-.fi-btn:active { transform: translateY(0); }
-.fi-ta-row { transition: background-color .15s ease; }
-
-/* ---- Sidebar header & user card ---- */
-.fi-sidebar-header { padding-inline: 1.25rem !important; }
-.ar-sidebar-user { display:flex; align-items:center; gap:.65rem; margin:.5rem; padding:.8rem .9rem; border-radius:.85rem; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.07); }
-.ar-sidebar-avatar { width:2.25rem; height:2.25rem; border-radius:9999px; background:var(--ar-gold); color:#0B1F3A; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none; }
-.ar-sidebar-user-info { min-width:0; flex:1; }
-.ar-sidebar-user-name { color:#fff; font-size:.85rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.ar-sidebar-user-role { color:rgba(255,255,255,.5); font-size:.7rem; }
-.ar-sidebar-logout { color:rgba(255,255,255,.55); background:none; border:0; cursor:pointer; padding:.4rem; border-radius:.5rem; display:flex; transition:color .15s, background-color .15s; }
-.ar-sidebar-logout:hover { color:#fff; background:rgba(255,255,255,.1); }
+.ar-topbar-title { font-size: 1.35rem; font-weight: 800; color: var(--ar-text); }
+.ar-topbar-user { display: flex; align-items: center; gap: .4rem; color: var(--ar-text-2); font-weight: 600; font-size: .95rem; padding-inline: .9rem; border-inline-start: 1px solid var(--ar-line); }
+.fi-topbar .fi-icon-btn { color: var(--ar-text) !important; }
 
 /* ---- Page header ---- */
-.fi-page-heading, .fi-header-heading { font-weight: 800 !important; }
-.fi-page-subheading, .fi-header-subheading { color: var(--ar-muted) !important; }
+.fi-page-heading, .fi-header-heading { font-size: 2rem !important; font-weight: 800 !important; color: var(--ar-text) !important; line-height: 1.5 !important; }
+.fi-page-header, .fi-header { margin-bottom: .25rem !important; }
 
-/* ---- Stats cards ---- */
-.fi-wi-stats-overview-stat { position: relative; padding: 1.25rem 1.25rem 0 !important; overflow: hidden; }
-.fi-wi-stats-overview-stat-label { color: var(--ar-muted) !important; font-size: .8rem !important; }
-.fi-wi-stats-overview-stat-value { font-size: 1.8rem !important; }
-.fi-wi-stats-overview-stat-icon { position:absolute; top:1rem; inset-inline-end:1rem; width:2.5rem; height:2.5rem; padding:.55rem; border-radius:.75rem; background:rgba(37,99,235,.1); color:#2563EB; }
-.fi-wi-stats-overview-stat-description { font-size:.75rem !important; }
-.fi-wi-stats-overview-stat-chart { margin-top: .5rem; }
+/* ---- KPI cards ---- */
+.ar-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+@media (max-width: 1100px) { .ar-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px)  { .ar-kpis { grid-template-columns: 1fr; } }
+.ar-kpi { background: var(--ar-card); border: 1px solid var(--ar-line); border-radius: 1.1rem; padding: 1.4rem 1.5rem; box-shadow: var(--ar-shadow); transition: transform .2s ease, box-shadow .2s ease; }
+.ar-kpi:hover { transform: translateY(-3px); box-shadow: 0 16px 30px -16px rgba(11,42,85,.35); }
+.ar-kpi-top { display: flex; align-items: center; gap: .9rem; }
+.ar-kpi-icon { width: 3.1rem; height: 3.1rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; flex: none; }
+.ar-kpi-icon--blue   { background: rgba(29,124,242,.13); color: #1D7CF2; }
+.ar-kpi-icon--teal   { background: rgba(13,148,136,.13); color: #0D9488; }
+.ar-kpi-icon--green  { background: rgba(22,163,74,.13);  color: #16A34A; }
+.ar-kpi-icon--orange { background: rgba(245,158,11,.16); color: #F59E0B; }
+.ar-kpi-label { color: var(--ar-text-2); font-weight: 600; font-size: 1.05rem; }
+.ar-kpi-value { margin-top: .9rem; font-size: 2.1rem; font-weight: 800; color: var(--ar-text); line-height: 1.25; text-align: center; }
+.ar-kpi-value small { font-size: .9rem; font-weight: 600; color: var(--ar-muted); margin-inline-start: .4rem; }
+.ar-demo { margin: .75rem .25rem 0; font-size: .75rem; color: var(--ar-muted); }
 
-/* ---- Chart widgets ---- */
-.fi-wi-chart .fi-section-header-heading { font-weight: 800 !important; }
+/* ---- Generic card + table ---- */
+.ar-card { background: var(--ar-card); border: 1px solid var(--ar-line); border-radius: 1.1rem; box-shadow: var(--ar-shadow); padding: 1.4rem 1.5rem; height: 100%; }
+.ar-card-head { display: flex; align-items: center; gap: .6rem; margin-bottom: 1.1rem; }
+.ar-card-head h3 { margin: 0; font-size: 1.15rem; font-weight: 800; color: var(--ar-text); }
+.ar-card-head-icon { color: var(--ar-accent); }
+.ar-table-wrap { overflow-x: auto; }
+.ar-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: .95rem; }
+.ar-table th { background: var(--ar-head); color: var(--ar-text); font-weight: 700; padding: .85rem 1rem; text-align: start; white-space: nowrap; }
+.ar-table th:first-child { border-start-start-radius: .7rem; border-end-start-radius: .7rem; }
+.ar-table th:last-child  { border-start-end-radius: .7rem; border-end-end-radius: .7rem; }
+.ar-table td { padding: .95rem 1rem; border-bottom: 1px solid var(--ar-line); color: var(--ar-text-2); white-space: nowrap; }
+.ar-table tr:last-child td { border-bottom: 0; }
+.ar-table td:first-child { font-weight: 700; color: var(--ar-text); }
+.ar-badge { display: inline-block; padding: .3rem .85rem; border-radius: .6rem; font-size: .8rem; font-weight: 700; }
+.ar-badge--completed { background: #DCFCE7; color: #15803D; }
+.ar-badge--review    { background: #FEF3C7; color: #B45309; }
+.ar-badge--cancelled { background: #FEE2E2; color: #B91C1C; }
+.dark .ar-badge--completed { background: rgba(22,163,74,.2); color: #4ADE80; }
+.dark .ar-badge--review    { background: rgba(245,158,11,.2); color: #FCD34D; }
+.dark .ar-badge--cancelled { background: rgba(220,38,38,.2); color: #FCA5A5; }
 
-/* ---- Spacing & dark-mode contrast fixes ---- */
-.fi-wi-stats-overview-stat {
-  padding: 1.35rem 1.35rem 3rem !important;      /* مساحة أسفل للمنحنى */
-  gap: .35rem !important;
-}
-.fi-wi-stats-overview-stat-label { font-size: .85rem !important; line-height: 1.6 !important; }
-.fi-wi-stats-overview-stat-value { font-size: 1.9rem !important; line-height: 1.35 !important; margin: .15rem 0 .25rem !important; }
-.fi-wi-stats-overview-stat-description { font-size: .78rem !important; line-height: 1.6 !important; }
-.fi-wi-stats-overview-stat-chart { margin-top: 0 !important; opacity: .9; }
-.fi-wi-stats-overview-heading, .fi-wi-stats-overview > .fi-section-header-heading {
-  font-size: .82rem !important; font-weight: 500 !important; color: var(--ar-muted) !important;
-}
+/* ---- Filament sections (chart card) ---- */
+.fi-section { background-color: var(--ar-card) !important; border: 1px solid var(--ar-line) !important; border-radius: 1.1rem !important; box-shadow: var(--ar-shadow) !important; }
+.fi-section-header { padding: 1.4rem 1.5rem .5rem !important; }
+.fi-section-header-heading { font-size: 1.15rem !important; font-weight: 800 !important; color: var(--ar-text) !important; }
+.fi-section-content { padding: 1rem 1.5rem 1.4rem !important; }
 
-/* تنفّس عام للنصوص العربية */
-.fi-body { line-height: 1.7; }
-.fi-page-heading, .fi-header-heading { line-height: 1.5 !important; margin-bottom: .15rem !important; }
-.fi-section-header { padding: 1.1rem 1.4rem !important; }
-.fi-section-header-heading { line-height: 1.6 !important; }
-.fi-section-content { padding: 1.4rem !important; }
-.fi-sidebar-item-btn { padding: .65rem .9rem !important; }
-.fi-sidebar-item-label { line-height: 1.6 !important; }
-
-/* الوضع الداكن: تمييز الشريط الجانبي عن المحتوى */
-.dark .fi-body { background-color: #0A1222 !important; }
-.dark .fi-sidebar, .dark .fi-sidebar-header, .dark .fi-sidebar-nav { background-color: #0F2340 !important; border-color: rgba(255,255,255,.08) !important; }
-.dark .fi-topbar nav { background-color: #0F2340 !important; border-color: rgba(255,255,255,.08) !important; }
-.dark .fi-section, .dark .fi-wi-stats-overview-stat, .dark .fi-ta-ctn { background-color: #121E36 !important; border-color: rgba(255,255,255,.08) !important; }
-.dark .fi-wi-stats-overview-stat-value, .dark .fi-section-header-heading, .dark .fi-page-heading { color: #F8FAFC !important; }
+/* ---- Dropdowns & motion ---- */
+.fi-dropdown-panel { border-radius: .9rem !important; animation: ar-fade-up .18s ease both; }
+@keyframes ar-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.fi-page { animation: ar-fade-up .35s ease both; }
+.fi-btn { transition: transform .15s ease, box-shadow .15s ease !important; }
+.fi-btn:hover { transform: translateY(-1px); }

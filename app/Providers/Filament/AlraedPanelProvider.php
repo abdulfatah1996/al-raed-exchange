@@ -3,13 +3,14 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\SetLocale;
 use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use App\Filament\Pages\Dashboard;
+use Filament\Navigation\NavigationItem;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
@@ -34,8 +35,9 @@ class AlraedPanelProvider extends PanelProvider
             ->path('alraed')
             ->login(Login::class)
             ->brandName(fn (): string => __('site.brand'))
+            ->brandLogo(fn () => view('filament.brand'))
             ->colors([
-                'primary' => Color::Blue,
+                'primary' => Color::hex('#1D7CF2'),
                 'gray' => Color::Slate,
                 'success' => Color::Emerald,
                 'danger' => Color::Rose,
@@ -46,6 +48,8 @@ class AlraedPanelProvider extends PanelProvider
             ->darkMode(true)
             ->sidebarWidth('17rem')
             ->spa()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('60s')
             ->assets([
                 Css::make('alraed-panel', asset('css/alraed-panel.css') . '?v=' . (file_exists($css) ? filemtime($css) : '1')),
             ])
@@ -55,9 +59,20 @@ class AlraedPanelProvider extends PanelProvider
                     ->icon('heroicon-o-language')
                     ->url(fn (): string => route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar')),
             ])
+            ->navigationItems([
+                $this->placeholder('transfers', 'heroicon-o-arrows-right-left', 2),
+                $this->placeholder('customers', 'heroicon-o-users', 3),
+                $this->placeholder('users', 'heroicon-o-user', 4),
+                $this->placeholder('reports', 'heroicon-o-chart-bar', 5),
+                $this->placeholder('settings', 'heroicon-o-cog-6-tooth', 6),
+            ])
             ->renderHook(
-                PanelsRenderHook::SIDEBAR_FOOTER,
-                fn (): string => view('filament.sidebar-user')->render(),
+                PanelsRenderHook::TOPBAR_START,
+                fn (): string => view('filament.topbar-title', ['title' => __('dashboard.title')])->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::USER_MENU_BEFORE,
+                fn (): string => view('filament.topbar-user')->render(),
             )
             ->renderHook(
                 PanelsRenderHook::SIMPLE_PAGE_START,
@@ -73,8 +88,7 @@ class AlraedPanelProvider extends PanelProvider
                 Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
-            ->widgets([
-            ])
+            ->widgets([])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
@@ -90,5 +104,17 @@ class AlraedPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /** Temporary menu entry until the real module is built. */
+    private function placeholder(string $key, string $icon, int $sort): NavigationItem
+    {
+        return NavigationItem::make($key)
+            ->label(fn (): string => __("dashboard.nav.{$key}"))
+            ->icon($icon)
+            ->url('#')
+            ->badge(fn (): string => __('dashboard.soon'))
+            ->isActiveWhen(fn (): bool => false)
+            ->sort($sort);
     }
 }
