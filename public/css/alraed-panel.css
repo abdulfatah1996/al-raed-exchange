@@ -20,22 +20,27 @@
 }
 .dark .fi-simple-layout { background: #0C1526 !important; }
 
-/* ---- Card ---- */
+/* ---- Card (compact) ---- */
 .fi-simple-main {
-  max-width: 28rem !important;
-  padding: 2.5rem 2.25rem 2rem !important;
-  border-radius: 1.5rem !important;
+  max-width: 22rem !important;
+  padding: 1.75rem 1.5rem 1.25rem !important;
+  border-radius: 1.25rem !important;
   border: 0 !important;
   overflow: hidden;
-  box-shadow: 0 25px 50px -20px rgba(11,31,58,.25) !important;
+  box-shadow: 0 20px 40px -18px rgba(11,31,58,.25) !important;
 }
 .dark .fi-simple-main { background-color: #111D33 !important; }
+.fi-simple-layout .fi-logo { display: none !important; }
+.fi-simple-page { overflow: visible; }
+.fi-simple-header { margin-bottom: .25rem !important; }
 
-/* ---- Hero band (inside the card header) ---- */
-.ar-login-hero {
-  align-self: stretch;
-  margin: -2.5rem -2.25rem 1.5rem;
-  padding: 2rem 1.5rem 1.75rem;
+/* ---- Hero band ---- */
+.fi-simple-page > .ar-login-hero {
+  display: block;
+  width: calc(100% + 3rem);
+  max-width: none;
+  margin: -1.75rem -1.5rem 1rem !important;
+  padding: 1.25rem 1rem 1.1rem;
   background: linear-gradient(135deg, var(--ar-navy) 0%, var(--ar-navy-2) 55%, var(--ar-blue) 100%);
   color: #fff;
   text-align: center;
@@ -45,40 +50,41 @@
 .ar-login-hero::after {
   content: '';
   position: absolute;
-  left: -20%; right: -20%; bottom: -70%;
-  height: 120px;
+  left: -20%; right: -20%; bottom: -75%;
+  height: 100px;
   border-radius: 50%;
   background: rgba(255,255,255,.08);
 }
 .ar-login-mark {
-  width: 4rem; height: 4rem;
-  margin: 0 auto .85rem;
-  border-radius: .9rem;
+  width: 3rem; height: 3rem;
+  margin: 0 auto .6rem;
+  border-radius: .7rem;
   background: #fff;
   color: var(--ar-blue);
-  font-size: 2.25rem; font-weight: 900; line-height: 1;
+  font-size: 1.6rem; font-weight: 900; line-height: 1;
   display: flex; align-items: center; justify-content: center;
   position: relative; z-index: 1;
 }
-.ar-login-brand { font-size: 1.75rem; font-weight: 800; line-height: 1.3; position: relative; z-index: 1; }
-.ar-login-system { font-size: .9rem; opacity: .85; margin-top: .25rem; position: relative; z-index: 1; }
+.ar-login-brand { font-size: 1.3rem; font-weight: 800; line-height: 1.3; position: relative; z-index: 1; }
+.ar-login-system { font-size: .72rem; opacity: .85; margin-top: .15rem; position: relative; z-index: 1; }
 
 /* ---- Heading / subheading ---- */
-.fi-simple-header-heading { font-size: 1.75rem !important; font-weight: 800 !important; color: var(--ar-text) !important; }
+.fi-simple-header-heading { font-size: 1.3rem !important; font-weight: 800 !important; color: var(--ar-text) !important; }
 .dark .fi-simple-header-heading { color: #fff !important; }
-.fi-simple-header-subheading { color: var(--ar-muted) !important; font-size: .95rem !important; font-weight: 500 !important; }
+.fi-simple-header-subheading { color: var(--ar-muted) !important; font-size: .8rem !important; font-weight: 500 !important; }
 
-/* ---- Form ---- */
-.fi-simple-main label { font-weight: 700 !important; color: var(--ar-text) !important; }
+/* ---- Form (compact) ---- */
+.fi-simple-main .fi-sc { gap: .9rem !important; }
+.fi-simple-main label { font-weight: 700 !important; font-size: .85rem !important; color: var(--ar-text) !important; }
 .dark .fi-simple-main label { color: #E5E7EB !important; }
-.fi-simple-main .fi-input-wrp { border-radius: .6rem !important; }
-.fi-simple-main .fi-input { padding-top: .75rem !important; padding-bottom: .75rem !important; }
+.fi-simple-main .fi-input-wrp { border-radius: .55rem !important; }
+.fi-simple-main .fi-input { padding-top: .5rem !important; padding-bottom: .5rem !important; font-size: .9rem !important; }
 
 .fi-simple-main .fi-btn {
   width: 100%;
-  border-radius: .6rem !important;
-  padding-top: .85rem !important; padding-bottom: .85rem !important;
-  font-size: 1.05rem !important; font-weight: 700 !important;
+  border-radius: .55rem !important;
+  padding-top: .6rem !important; padding-bottom: .6rem !important;
+  font-size: .95rem !important; font-weight: 700 !important;
   background-color: var(--ar-blue) !important; color: #fff !important;
   box-shadow: none !important;
 }
@@ -86,19 +92,9 @@
 
 /* ---- Footer note ---- */
 .ar-login-footer {
-  margin-top: 1.5rem; padding-top: 1.1rem;
+  margin-top: 1rem; padding-top: .8rem;
   border-top: 1px solid var(--ar-line);
-  display: flex; align-items: center; justify-content: center; gap: .45rem;
-  color: var(--ar-muted); font-size: .85rem; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: .4rem;
+  color: var(--ar-muted); font-size: .75rem; font-weight: 500;
 }
 .dark .ar-login-footer { border-color: rgba(255,255,255,.1); color: #9CA3AF; }
-
-/* ---- Hero placement fix ---- */
-.fi-simple-layout .fi-logo { display: none !important; }
-.fi-simple-page { overflow: visible; }
-.fi-simple-page > .ar-login-hero {
-  display: block;
-  width: calc(100% + 4.5rem);
-  max-width: none;
-  margin: -2.5rem -2.25rem 1.5rem !important;
-}
