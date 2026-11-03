@@ -172,3 +172,32 @@
 
 /* ---- Chart widgets ---- */
 .fi-wi-chart .fi-section-header-heading { font-weight: 800 !important; }
+
+/* ---- Spacing & dark-mode contrast fixes ---- */
+.fi-wi-stats-overview-stat {
+  padding: 1.35rem 1.35rem 3rem !important;      /* مساحة أسفل للمنحنى */
+  gap: .35rem !important;
+}
+.fi-wi-stats-overview-stat-label { font-size: .85rem !important; line-height: 1.6 !important; }
+.fi-wi-stats-overview-stat-value { font-size: 1.9rem !important; line-height: 1.35 !important; margin: .15rem 0 .25rem !important; }
+.fi-wi-stats-overview-stat-description { font-size: .78rem !important; line-height: 1.6 !important; }
+.fi-wi-stats-overview-stat-chart { margin-top: 0 !important; opacity: .9; }
+.fi-wi-stats-overview-heading, .fi-wi-stats-overview > .fi-section-header-heading {
+  font-size: .82rem !important; font-weight: 500 !important; color: var(--ar-muted) !important;
+}
+
+/* تنفّس عام للنصوص العربية */
+.fi-body { line-height: 1.7; }
+.fi-page-heading, .fi-header-heading { line-height: 1.5 !important; margin-bottom: .15rem !important; }
+.fi-section-header { padding: 1.1rem 1.4rem !important; }
+.fi-section-header-heading { line-height: 1.6 !important; }
+.fi-section-content { padding: 1.4rem !important; }
+.fi-sidebar-item-btn { padding: .65rem .9rem !important; }
+.fi-sidebar-item-label { line-height: 1.6 !important; }
+
+/* الوضع الداكن: تمييز الشريط الجانبي عن المحتوى */
+.dark .fi-body { background-color: #0A1222 !important; }
+.dark .fi-sidebar, .dark .fi-sidebar-header, .dark .fi-sidebar-nav { background-color: #0F2340 !important; border-color: rgba(255,255,255,.08) !important; }
+.dark .fi-topbar nav { background-color: #0F2340 !important; border-color: rgba(255,255,255,.08) !important; }
+.dark .fi-section, .dark .fi-wi-stats-overview-stat, .dark .fi-ta-ctn { background-color: #121E36 !important; border-color: rgba(255,255,255,.08) !important; }
+.dark .fi-wi-stats-overview-stat-value, .dark .fi-section-header-heading, .dark .fi-page-heading { color: #F8FAFC !important; }
