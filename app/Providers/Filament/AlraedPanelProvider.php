@@ -4,6 +4,7 @@ namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
 use App\Http\Middleware\SetLocale;
+use Filament\Actions\Action;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -49,10 +50,12 @@ class AlraedPanelProvider extends PanelProvider
             ->assets([
                 Css::make('alraed-panel', asset('css/alraed-panel.css') . '?v=' . (file_exists($css) ? filemtime($css) : '1')),
             ])
-            ->renderHook(
-                PanelsRenderHook::USER_MENU_BEFORE,
-                fn (): string => view('filament.language-switcher')->render(),
-            )
+            ->userMenuItems([
+                Action::make('language')
+                    ->label(fn (): string => __('site.switch_language'))
+                    ->icon('heroicon-o-language')
+                    ->url(fn (): string => route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar')),
+            ])
             ->renderHook(
                 PanelsRenderHook::SIMPLE_PAGE_START,
                 fn (): string => request()->routeIs('filament.alraed.auth.login') ? view('filament.login-hero')->render() : '',

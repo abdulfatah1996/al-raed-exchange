@@ -98,3 +98,52 @@
   color: var(--ar-muted); font-size: .75rem; font-weight: 500;
 }
 .dark .ar-login-footer { border-color: rgba(255,255,255,.1); color: #9CA3AF; }
+
+/* =========================================================
+   Panel shell: sidebar / topbar / content / cards / motion
+   ========================================================= */
+.fi-body { background-color: #F3F6FB !important; }
+.dark .fi-body { background-color: #0C1526 !important; }
+
+/* ---- Sidebar (dark navy) ---- */
+.fi-sidebar, .fi-sidebar-header, .fi-sidebar-nav {
+  background-color: #0B1F3A !important;
+  border-color: rgba(255,255,255,.06) !important;
+}
+.fi-sidebar-header .fi-logo { color: #fff !important; font-weight: 800 !important; }
+.fi-sidebar-group-label { color: rgba(255,255,255,.45) !important; font-size: .68rem !important; letter-spacing: .08em; }
+.fi-sidebar-group-collapse-button, .fi-sidebar-group-collapse-button svg { color: rgba(255,255,255,.5) !important; }
+.fi-sidebar-item-btn { border-radius: .65rem !important; transition: background-color .18s ease, color .18s ease !important; }
+.fi-sidebar-item-label { color: rgba(255,255,255,.75) !important; font-weight: 500 !important; }
+.fi-sidebar-item-icon { color: rgba(255,255,255,.5) !important; }
+.fi-sidebar-item-btn:hover { background-color: rgba(255,255,255,.07) !important; }
+.fi-sidebar-item-btn:hover .fi-sidebar-item-label, .fi-sidebar-item-btn:hover .fi-sidebar-item-icon { color: #fff !important; }
+.fi-sidebar-item.fi-active > .fi-sidebar-item-btn, .fi-sidebar-item-btn.fi-active { background-color: rgba(59,130,246,.2) !important; }
+.fi-sidebar-item.fi-active .fi-sidebar-item-label, .fi-sidebar-item.fi-active .fi-sidebar-item-icon,
+.fi-sidebar-item-btn.fi-active .fi-sidebar-item-label, .fi-sidebar-item-btn.fi-active .fi-sidebar-item-icon { color: #93C5FD !important; }
+.fi-sidebar-item-badge { background-color: var(--ar-gold) !important; color: #0B1F3A !important; }
+.fi-sidebar-close-overlay { backdrop-filter: blur(2px); }
+
+/* ---- Topbar ---- */
+.fi-topbar nav { background-color: #fff !important; border-bottom: 1px solid #E8ECF3 !important; box-shadow: none !important; }
+.dark .fi-topbar nav { background-color: #111D33 !important; border-color: rgba(255,255,255,.07) !important; }
+
+/* ---- Cards ---- */
+.fi-section, .fi-wi-stats-overview-stat, .fi-ta-ctn, .fi-wi-widget > .fi-section {
+  border-radius: 1rem !important;
+  border: 1px solid #E8ECF3 !important;
+  box-shadow: 0 1px 2px rgba(16,24,40,.04) !important;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.dark .fi-section, .dark .fi-wi-stats-overview-stat, .dark .fi-ta-ctn { border-color: rgba(255,255,255,.07) !important; }
+.fi-wi-stats-overview-stat:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -16px rgba(11,31,58,.3) !important; }
+.fi-wi-stats-overview-stat-value { font-weight: 800 !important; }
+
+/* ---- Motion ---- */
+@keyframes ar-fade-up { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.fi-page { animation: ar-fade-up .35s ease both; }
+.fi-dropdown-panel { animation: ar-fade-up .18s ease both; border-radius: .9rem !important; }
+.fi-btn { transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease !important; }
+.fi-btn:hover { transform: translateY(-1px); }
+.fi-btn:active { transform: translateY(0); }
+.fi-ta-row { transition: background-color .15s ease; }
