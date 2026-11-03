@@ -198,3 +198,28 @@
 .fi-page { animation: ar-fade-up .35s ease both; }
 .fi-btn { transition: transform .15s ease, box-shadow .15s ease !important; }
 .fi-btn:hover { transform: translateY(-1px); }
+
+/* ---- Overlap fixes ---- */
+.fi-sidebar-header .fi-logo { display: none !important; }
+@media (min-width: 1024px) { .fi-sidebar-header { display: none !important; } }
+.fi-sidebar-nav > .ar-brand, .ar-brand {
+  padding: 1.1rem 1rem 1rem; margin: 0 .25rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,.15);
+}
+.ar-brand-mark { font-size: 2.9rem; }
+.ar-brand-name { font-size: 1.2rem; }
+
+.ar-topbar-title { white-space: nowrap; }
+.ar-topbar-user { white-space: nowrap; }
+@media (max-width: 1023px) {
+  .fi-topbar { padding: .6rem .75rem 0 !important; }
+  .fi-topbar nav, .fi-topbar > nav { padding-inline: .9rem !important; height: 3.75rem !important; gap: .5rem; }
+  .ar-topbar-title { font-size: 1.05rem; }
+  .ar-topbar-user { padding-inline: .4rem; font-size: .85rem; }
+}
+@media (max-width: 640px) {
+  .ar-topbar-user span { display: none; }   /* نُبقي السهم فقط بجانب الصورة */
+  .fi-page-heading, .fi-header-heading { font-size: 1.5rem !important; }
+  .ar-kpi-value { font-size: 1.8rem; }
+}
+.ar-kpi-value small { margin-inline: .45rem; }

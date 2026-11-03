@@ -35,7 +35,6 @@ class AlraedPanelProvider extends PanelProvider
             ->path('alraed')
             ->login(Login::class)
             ->brandName(fn (): string => __('site.brand'))
-            ->brandLogo(fn () => view('filament.brand'))
             ->colors([
                 'primary' => Color::hex('#1D7CF2'),
                 'gray' => Color::Slate,
@@ -66,6 +65,10 @@ class AlraedPanelProvider extends PanelProvider
                 $this->placeholder('reports', 'heroicon-o-chart-bar', 5),
                 $this->placeholder('settings', 'heroicon-o-cog-6-tooth', 6),
             ])
+            ->renderHook(
+                PanelsRenderHook::SIDEBAR_NAV_START,
+                fn (): string => view('filament.brand')->render(),
+            )
             ->renderHook(
                 PanelsRenderHook::TOPBAR_START,
                 fn (): string => view('filament.topbar-title', ['title' => __('dashboard.title')])->render(),
