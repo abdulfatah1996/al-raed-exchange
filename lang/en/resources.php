@@ -54,4 +54,9 @@ return array (
     'singular' => 'Transfer',
     'plural' => 'Transfers',
   ),
+  'receipt' => 
+  array (
+    'singular' => 'Receipt',
+    'plural' => 'Receipts',
+  ),
 );

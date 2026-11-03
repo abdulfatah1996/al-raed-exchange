@@ -19,7 +19,7 @@ class Transfer extends Model
         'customer_id', 'service_id', 'country_id', 'type',
         'send_amount', 'send_currency_id', 'deliver_amount', 'deliver_currency_id', 'rate', 'fee_amount', 'fee_currency_id', 'commission_amount',
         'delivery_method_id', 'payment_account_id', 'sender_name', 'beneficiary_name', 'beneficiary_details', 'external_ref',
-        'assigned_user_id', 'scheduled_at', 'internal_notes', 'idempotency_key',
+        'assigned_user_id', 'scheduled_at', 'internal_notes', 'delivery_proof_file', 'idempotency_key',
     ];
 
     protected function casts(): array
@@ -74,7 +74,7 @@ class Transfer extends Model
         }
 
         if ($to === TransferStatus::Delivered && ! $this->canBeDelivered()) {
-            throw new InvalidTransferTransition('delivery requirements not met');
+            throw new InvalidTransferTransition(__('fields.delivery_blocked'));
         }
 
         DB::transaction(function () use ($from, $to, $note) {
@@ -91,11 +91,17 @@ class Transfer extends Model
         });
     }
 
-    /** Extended in the receipts phase: all receipts verified + delivery proof attached. */
+    /** Delivery requires: at least one receipt, every receipt verified, and a delivery proof file. */
     public function canBeDelivered(): bool
     {
-        return true;
+        $receipts = $this->receipts()->get();
+
+        return $receipts->isNotEmpty()
+            && $receipts->every(fn (Receipt $r) => $r->verification_status === \App\Enums\ReceiptVerification::Verified)
+            && filled($this->delivery_proof_file);
     }
+
+    public function receipts(): HasMany { return $this->hasMany(Receipt::class)->orderBy('number'); }
 
     public function customer(): BelongsTo { return $this->belongsTo(Customer::class); }
     public function service(): BelongsTo { return $this->belongsTo(Service::class); }

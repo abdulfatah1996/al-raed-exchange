@@ -7,12 +7,14 @@ use App\Enums\TransferType;
 use App\Filament\Resources\Transfers\Pages\CreateTransfer;
 use App\Filament\Resources\Transfers\Pages\EditTransfer;
 use App\Filament\Resources\Transfers\Pages\ListTransfers;
+use App\Filament\Resources\Transfers\RelationManagers\ReceiptsRelationManager;
 use App\Filament\Resources\Transfers\RelationManagers\StatusLogsRelationManager;
 use App\Models\Customer;
 use App\Models\PaymentAccount;
 use App\Models\Transfer;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -92,6 +94,9 @@ class TransferResource extends Resource
             Section::make(__('fields.notes_dates'))->columns(2)->columnSpanFull()->schema([
                 DateTimePicker::make('scheduled_at')->label(__('fields.scheduled_at'))->seconds(false),
                 Textarea::make('internal_notes')->label(__('fields.internal_notes'))->rows(3)->columnSpanFull(),
+                FileUpload::make('delivery_proof_file')->label(__('fields.delivery_proof'))->disk('local')->directory('proofs')->visibility('private')
+                    ->acceptedFileTypes(['image/*', 'application/pdf'])->maxSize(8192)->openable()->downloadable()->columnSpanFull()
+                    ->getUploadedFileUrlUsing(fn (string $file): string => route('files.show', ['path' => $file])),
             ]),
         ]);
     }
@@ -125,7 +130,7 @@ class TransferResource extends Resource
 
     public static function getRelations(): array
     {
-        return [StatusLogsRelationManager::class];
+        return [ReceiptsRelationManager::class, StatusLogsRelationManager::class];
     }
 
     public static function getPages(): array

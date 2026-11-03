@@ -18,3 +18,10 @@ Route::get('/lang/{locale}', function (string $locale) {
 
     return redirect()->back();
 })->name('lang.switch');
+
+Route::middleware(['auth'])->get('/alraed/files/{path}', function (string $path) {
+    abort_unless(\Illuminate\Support\Str::startsWith($path, ['receipts/', 'proofs/']), 403);
+    abort_unless(\Illuminate\Support\Facades\Storage::disk('local')->exists($path), 404);
+
+    return \Illuminate\Support\Facades\Storage::disk('local')->response($path);
+})->where('path', '.*')->name('files.show');

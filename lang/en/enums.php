@@ -68,4 +68,16 @@ return array (
     'rejected' => 'Rejected',
     'on_hold' => 'On hold',
   ),
+  'receipt_verification' => 
+  array (
+    'pending' => 'Pending',
+    'verified' => 'Verified',
+    'rejected' => 'Rejected',
+  ),
+  'receipt_delivery' => 
+  array (
+    'pending' => 'Not delivered',
+    'delivered' => 'Delivered',
+    'failed' => 'Failed',
+  ),
 );

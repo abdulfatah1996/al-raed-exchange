@@ -68,4 +68,16 @@ return array (
     'rejected' => 'مرفوضة',
     'on_hold' => 'معلّقة',
   ),
+  'receipt_verification' => 
+  array (
+    'pending' => 'بانتظار التشييك',
+    'verified' => 'موثّق',
+    'rejected' => 'مرفوض',
+  ),
+  'receipt_delivery' => 
+  array (
+    'pending' => 'لم يُسلَّم',
+    'delivered' => 'تم تسليمه',
+    'failed' => 'فشل التسليم',
+  ),
 );

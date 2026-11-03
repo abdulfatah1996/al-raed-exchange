@@ -54,4 +54,9 @@ return array (
     'singular' => 'حوالة',
     'plural' => 'الحوالات',
   ),
+  'receipt' => 
+  array (
+    'singular' => 'وصل',
+    'plural' => 'الوصولات',
+  ),
 );
