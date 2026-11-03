@@ -46,7 +46,7 @@ class TransferResource extends Resource
     public static function form(Schema $schema): Schema
     {
         $currency = fn (string $field, string $label) => Select::make($field)->label(__($label))
-            ->relationship(str_replace('_id', '', \Illuminate\Support\Str::camel($field)), 'code')->searchable()->preload()->native(false);
+            ->relationship(\Illuminate\Support\Str::camel(str_replace('_id', '', $field)), 'code')->searchable()->preload()->native(false);
 
         return $schema->components([
             Section::make(__('fields.basic'))->columns(3)->columnSpanFull()->schema([
