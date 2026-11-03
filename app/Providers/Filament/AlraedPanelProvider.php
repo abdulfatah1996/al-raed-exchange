@@ -35,7 +35,7 @@ class AlraedPanelProvider extends PanelProvider
             ->login(Login::class)
             ->brandName(fn (): string => __('site.brand'))
             ->colors([
-                'primary' => Color::hex('#C9A227'),
+                'primary' => Color::Blue,
                 'gray' => Color::Slate,
                 'success' => Color::Emerald,
                 'danger' => Color::Rose,
