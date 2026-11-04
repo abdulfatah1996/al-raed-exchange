@@ -1,9 +1,12 @@
 <x-filament-widgets::widget>
     <div class="ar-card">
         <div class="ar-card-head">
-            <x-filament::icon icon="heroicon-o-document-text" class="ar-card-head-icon" style="width:1.35rem;height:1.35rem;" />
             <h3>{{ __('dashboard.recent') }}</h3>
+            <a href="{{ \App\Filament\Resources\Transfers\TransferResource::getUrl('index') }}" class="ar-card-link">{{ __('dashboard.view_all') }}</a>
         </div>
+        @if (empty($rows))
+            <p class="ar-empty">{{ __('dashboard.empty_recent') }}</p>
+        @else
         <div class="ar-table-wrap">
             <table class="ar-table">
                 <thead>
@@ -17,14 +20,15 @@
                 <tbody>
                     @foreach ($rows as $r)
                         <tr>
-                            <td>{{ $r['ref'] }}</td>
+                            <td><a href="{{ $r['url'] }}" class="ar-ref">{{ $r['ref'] }}</a></td>
                             <td>{{ $r['customer'] }}</td>
-                            <td dir="ltr" style="text-align:start">{{ $r['amount'] }}</td>
-                            <td><span class="ar-badge ar-badge--{{ $r['status'] }}">{{ $r['status_label'] ?? __('dashboard.statuses.' . $r['status']) }}</span></td>
+                            <td><span dir="ltr">{{ $r['amount'] }}</span></td>
+                            <td><span class="ar-badge ar-badge--{{ $r['status'] }}">{{ $r['status_label'] }}</span></td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
+        @endif
     </div>
 </x-filament-widgets::widget>

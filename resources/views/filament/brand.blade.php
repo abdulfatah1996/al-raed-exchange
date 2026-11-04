@@ -1,4 +1,4 @@
 <div class="ar-brand">
-    <div class="ar-brand-mark">R</div>
-    <div class="ar-brand-name">{{ __('site.brand') }}</div>
+    @include('site.partials.logo', ['dark' => true, 'size' => 'ar-brand-logo'])
+    <span class="ar-brand-tag">{{ __('dashboard.panel_tag') }}</span>
 </div>

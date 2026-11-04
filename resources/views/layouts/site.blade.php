@@ -19,6 +19,7 @@
     <title>{{ isset($title) ? $title . ' — ' : '' }}{{ __('site.brand') }}</title>
     <meta name="description" content="{{ __('web.meta_description') }}">
     <meta name="theme-color" content="#0b1f3a">
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     <meta property="og:title" content="{{ __('site.brand') }} — {{ __('site.tagline') }}">
     <meta property="og:description" content="{{ __('web.meta_description') }}">
     <link rel="alternate" hreflang="{{ $other }}" href="{{ route('lang.switch', $other) }}">

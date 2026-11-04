@@ -3,6 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Auth\Login;
+use App\Filament\AvatarProviders\InitialsAvatarProvider;
 use App\Filament\Pages\Dashboard;
 use App\Http\Middleware\SetLocale;
 use Filament\Actions\Action;
@@ -11,7 +12,7 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\NavigationItem;
+use Filament\Navigation\NavigationGroup;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Assets\Css;
@@ -42,13 +43,15 @@ class AlraedPanelProvider extends PanelProvider
             )
             ->brandName(fn (): string => __('site.brand'))
             ->colors([
-                'primary' => Color::Blue,
+                'primary' => self::palette(['#f1f4f9', '#e2e8f1', '#c5d1e3', '#9cb0cd', '#6c86ae', '#45618d', '#2d4a74', '#1c3a63', '#12294a', '#0b1f3a', '#06121f']),
                 'gray' => Color::Slate,
-                'success' => Color::Emerald,
-                'danger' => Color::Rose,
-                'warning' => Color::Amber,
+                'success' => Color::hex('#2f7d57'),
+                'danger' => Color::hex('#b42318'),
+                'warning' => self::palette(['#fbf7ea', '#f6edcc', '#efdd9c', '#e6cc7a', '#d8b54b', '#c9a227', '#a8861c', '#866a17', '#6b5516', '#574614', '#322708']),
                 'info' => Color::Sky,
             ])
+            ->favicon(asset('favicon.svg'))
+            ->defaultAvatarProvider(InitialsAvatarProvider::class)
             ->font('Cairo')
             ->darkMode(true)
             ->sidebarWidth('17rem')
@@ -65,10 +68,6 @@ class AlraedPanelProvider extends PanelProvider
                     ->icon('heroicon-o-language')
                     ->url(fn (): string => route('lang.switch', app()->getLocale() === 'ar' ? 'en' : 'ar')),
             ])
-            ->navigationItems([
-                $this->placeholder('users', 'heroicon-o-user', 4),
-                $this->placeholder('reports', 'heroicon-o-chart-bar', 5),
-            ])
             ->renderHook(
                 PanelsRenderHook::SIDEBAR_NAV_START,
                 fn (): string => view('filament.brand')->render(),
@@ -82,13 +81,18 @@ class AlraedPanelProvider extends PanelProvider
                 fn (): string => view('filament.topbar-user')->render(),
             )
             ->renderHook(
-                PanelsRenderHook::SIMPLE_PAGE_START,
-                fn (): string => request()->routeIs('filament.alraed.auth.login') ? view('filament.login-hero')->render() : '',
+                PanelsRenderHook::SIMPLE_LAYOUT_START,
+                fn (): string => view('filament.login-hero')->render(),
             )
             ->renderHook(
                 PanelsRenderHook::AUTH_LOGIN_FORM_AFTER,
                 fn (): string => view('filament.login-footer')->render(),
             )
+            ->navigationGroups([
+                NavigationGroup::make(fn (): string => __('resources.groups.operations')),
+                NavigationGroup::make(fn (): string => __('resources.groups.accounts')),
+                NavigationGroup::make(fn (): string => __('resources.groups.settings'))->collapsed(),
+            ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
@@ -113,15 +117,10 @@ class AlraedPanelProvider extends PanelProvider
             ]);
     }
 
-    /** Temporary menu entry until the real module is built. */
-    private function placeholder(string $key, string $icon, int $sort): NavigationItem
+
+    /** Brand palette (50 → 950) from exact hex values, so shades stay on-brand. */
+    private static function palette(array $hex): array
     {
-        return NavigationItem::make($key)
-            ->label(fn (): string => __("dashboard.nav.{$key}"))
-            ->icon($icon)
-            ->url('#')
-            ->badge(fn (): string => __('dashboard.soon'))
-            ->isActiveWhen(fn (): bool => false)
-            ->sort($sort);
+        return array_combine([50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950], array_map(fn (string $h) => Color::convertToOklch($h), $hex));
     }
 }

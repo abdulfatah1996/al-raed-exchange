@@ -19,7 +19,12 @@ class Dashboard extends BaseDashboard
 
     public function getHeading(): string|Htmlable
     {
-        return __('dashboard.welcome');
+        return __('dashboard.greeting', ['name' => auth()->user()?->name]);
+    }
+
+    public function getSubheading(): string|Htmlable|null
+    {
+        return now()->translatedFormat('l، j F Y');
     }
 
     public function getColumns(): int|array
