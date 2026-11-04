@@ -32,6 +32,10 @@ final class Permissions
     public const PAYMENT_ACCOUNTS_VIEW = 'payment_accounts.view';
     public const PAYMENT_ACCOUNTS_MANAGE = 'payment_accounts.manage';
 
+    public const REQUESTS_VIEW = 'requests.view';
+    public const REQUESTS_MANAGE = 'requests.manage';
+    public const ANNOUNCEMENTS_MANAGE = 'announcements.manage';
+
     public const SETTINGS_MANAGE = 'settings.manage';
     public const FILES_VIEW = 'files.view';
     public const USERS_MANAGE = 'users.manage';
@@ -59,14 +63,14 @@ final class Permissions
      */
     public static function roles(): array
     {
-        $viewer = [self::PANEL_ACCESS, self::CUSTOMERS_VIEW, self::TRANSFERS_VIEW, self::PAYMENT_ACCOUNTS_VIEW];
+        $viewer = [self::PANEL_ACCESS, self::CUSTOMERS_VIEW, self::TRANSFERS_VIEW, self::PAYMENT_ACCOUNTS_VIEW, self::REQUESTS_VIEW];
 
         return [
             self::ROLE_ADMIN => self::all(),
             self::ROLE_SUPERVISOR => array_values(array_diff(self::all(), [self::USERS_MANAGE])),
             self::ROLE_EMPLOYEE => [
                 ...$viewer, self::CUSTOMERS_MANAGE, self::TRANSFERS_CREATE, self::TRANSFERS_UPDATE,
-                self::TRANSFERS_PRICE, self::TRANSFERS_CANCEL, self::RECEIPTS_MANAGE, self::FILES_VIEW,
+                self::TRANSFERS_PRICE, self::TRANSFERS_CANCEL, self::RECEIPTS_MANAGE, self::FILES_VIEW, self::REQUESTS_MANAGE,
             ],
             self::ROLE_CASHIER => [...$viewer, self::TRANSFERS_DELIVER, self::RECEIPTS_DELIVER, self::FILES_VIEW],
             self::ROLE_VIEWER => $viewer,
