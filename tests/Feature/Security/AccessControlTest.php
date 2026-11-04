@@ -26,6 +26,16 @@ class AccessControlTest extends AlraedTestCase
         $this->get('/alraed')->assertRedirect(route('filament.alraed.auth.login'));
     }
 
+    public function test_branded_login_page_renders(): void
+    {
+        $this->get(route('filament.alraed.auth.login'))->assertOk()->assertSee('ar-auth-aside', false)->assertSee(__('site.system_name'));
+    }
+
+    public function test_avatars_are_generated_locally(): void
+    {
+        $this->actingAs($this->staff(Permissions::ROLE_ADMIN))->get('/alraed')->assertOk()->assertDontSee('ui-avatars.com');
+    }
+
     public function test_account_without_role_is_refused(): void
     {
         $this->actingAs(User::factory()->create())->get('/alraed')->assertForbidden();

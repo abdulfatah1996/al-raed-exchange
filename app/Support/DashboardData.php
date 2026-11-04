@@ -2,8 +2,11 @@
 
 namespace App\Support;
 
+use App\Enums\RequestStatus;
 use App\Enums\TransferStatus;
-use App\Models\Customer;
+use App\Filament\Resources\TransferRequests\TransferRequestResource;
+use App\Filament\Resources\Transfers\TransferResource;
+use App\Models\TransferRequest;
 use App\Models\Transfer;
 
 class DashboardData
@@ -13,16 +16,21 @@ class DashboardData
         return false;
     }
 
+    /** Count-based KPIs that tell staff what needs action now (no mixed-currency totals). */
     public static function kpis(): array
     {
-        $today = Transfer::whereDate('created_at', today());
-        $usdToday = (clone $today)->whereHas('sendCurrency', fn ($q) => $q->where('code', 'USD'))->sum('send_amount');
+        $count = fn (array $statuses) => (string) Transfer::whereIn('status', $statuses)->count();
+        $transfers = fn (array $statuses) => TransferResource::getUrl('index', ['filters' => ['status' => ['values' => array_map(fn ($s) => $s->value, $statuses)]]]);
 
         return [
-            ['label' => __('dashboard.kpi.today'), 'value' => (string) (clone $today)->count(), 'unit' => null, 'icon' => 'heroicon-o-arrows-right-left', 'tone' => 'blue'],
-            ['label' => __('dashboard.kpi.total'), 'value' => number_format((float) $usdToday, 2), 'unit' => 'USD', 'icon' => 'heroicon-o-banknotes', 'tone' => 'teal'],
-            ['label' => __('dashboard.kpi.new_customers'), 'value' => (string) Customer::where('created_at', '>=', now()->subDays(7))->count(), 'unit' => null, 'icon' => 'heroicon-o-user-plus', 'tone' => 'green'],
-            ['label' => __('dashboard.kpi.pending'), 'value' => (string) Transfer::whereIn('status', [TransferStatus::PendingVerification, TransferStatus::UnderReview, TransferStatus::OnHold])->count(), 'unit' => null, 'icon' => 'heroicon-o-clock', 'tone' => 'orange'],
+            ['label' => __('dashboard.kpi_requests'), 'value' => (string) TransferRequest::where('status', RequestStatus::New)->count(),
+                'icon' => 'heroicon-o-inbox-arrow-down', 'tone' => 'gold', 'url' => TransferRequestResource::getUrl('index')],
+            ['label' => __('dashboard.kpi_verify'), 'value' => $count([TransferStatus::PendingVerification, TransferStatus::UnderReview]),
+                'icon' => 'heroicon-o-shield-check', 'tone' => 'amber', 'url' => $transfers([TransferStatus::PendingVerification, TransferStatus::UnderReview])],
+            ['label' => __('dashboard.kpi_execute'), 'value' => $count([TransferStatus::Approved, TransferStatus::InProgress]),
+                'icon' => 'heroicon-o-truck', 'tone' => 'navy', 'url' => $transfers([TransferStatus::Approved, TransferStatus::InProgress])],
+            ['label' => __('dashboard.kpi_delivered'), 'value' => (string) Transfer::where('status', TransferStatus::Delivered)->whereDate('delivered_at', today())->count(),
+                'icon' => 'heroicon-o-check-badge', 'tone' => 'green', 'url' => $transfers([TransferStatus::Delivered])],
         ];
     }
 
@@ -32,11 +40,8 @@ class DashboardData
             'ref' => $t->reference,
             'customer' => $t->customer?->name ?? '—',
             'amount' => $t->send_amount === null ? '—' : rtrim(rtrim(number_format((float) $t->send_amount, 8, '.', ','), '0'), '.') . ' ' . ($t->sendCurrency?->code ?? ''),
-            'status' => match ($t->status) {
-                TransferStatus::Delivered => 'completed',
-                TransferStatus::Cancelled, TransferStatus::Rejected => 'cancelled',
-                default => 'review',
-            },
+            'status' => $t->status->getColor(),
+            'url' => TransferResource::getUrl('view', ['record' => $t]),
             'status_label' => $t->status->getLabel(),
         ])->all();
     }

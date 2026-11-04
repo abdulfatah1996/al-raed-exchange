@@ -19,7 +19,7 @@ class WeeklyTransfersChart extends ChartWidget
 
     protected function getType(): string
     {
-        return 'line';
+        return 'bar';
     }
 
     protected function getData(): array
@@ -30,16 +30,10 @@ class WeeklyTransfersChart extends ChartWidget
             'datasets' => [[
                 'label' => __('dashboard.count_label'),
                 'data' => $w['data'],
-                'fill' => true,
-                'tension' => 0,
-                'borderColor' => '#1D7CF2',
-                'backgroundColor' => 'rgba(29, 124, 242, 0.15)',
-                'borderWidth' => 2.5,
-                'pointRadius' => 5,
-                'pointHoverRadius' => 7,
-                'pointBackgroundColor' => '#ffffff',
-                'pointBorderColor' => '#1D7CF2',
-                'pointBorderWidth' => 2,
+                // Past days navy, today gold.
+                'backgroundColor' => array_map(fn ($i) => $i === count($w['data']) - 1 ? '#c9a227' : '#1c3a63', array_keys($w['data'])),
+                'borderRadius' => 6,
+                'maxBarThickness' => 34,
             ]],
             'labels' => $w['labels'],
         ];
@@ -50,9 +44,8 @@ class WeeklyTransfersChart extends ChartWidget
         return [
             'plugins' => ['legend' => ['display' => false]],
             'scales' => [
-                'y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0], 'grid' => ['color' => 'rgba(100,116,139,.15)'],
-                        'title' => ['display' => true, 'text' => __('dashboard.count_label')]],
-                'x' => ['grid' => ['display' => false]],
+                'y' => ['beginAtZero' => true, 'ticks' => ['precision' => 0], 'grid' => ['color' => 'rgba(11,31,58,.07)'], 'border' => ['display' => false]],
+                'x' => ['grid' => ['display' => false], 'border' => ['display' => false]],
             ],
         ];
     }

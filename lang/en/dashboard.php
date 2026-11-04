@@ -14,4 +14,10 @@ return [
     'count_label' => 'Transfers',
     'cols' => ['ref' => 'Transfer #', 'customer' => 'Customer', 'amount' => 'Amount', 'status' => 'Status'],
     'statuses' => ['completed' => 'Completed', 'review' => 'Under review', 'cancelled' => 'Cancelled'],
+    'panel_tag' => 'Admin panel',
+    'roles' => ['admin' => 'Administrator', 'supervisor' => 'Supervisor', 'employee' => 'Employee', 'cashier' => 'Cashier', 'viewer' => 'Viewer'],
+    'auth_points' => ['Two-factor sign-in for every staff member', 'Role-based access: record, verify, deliver', 'Full history of every transfer change'],
+    'kpi_requests' => 'New website requests', 'kpi_verify' => 'Awaiting verification', 'kpi_execute' => 'Ready to deliver', 'kpi_delivered' => 'Delivered today',
+    'view_all' => 'View all', 'empty_recent' => 'No transfers yet.',
+    'greeting' => 'Welcome, :name',
 ];

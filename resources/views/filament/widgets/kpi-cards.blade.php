@@ -1,16 +1,14 @@
 <x-filament-widgets::widget>
     <div class="ar-kpis">
         @foreach ($cards as $c)
-            <div class="ar-kpi">
-                <div class="ar-kpi-top">
-                    <span class="ar-kpi-icon ar-kpi-icon--{{ $c['tone'] }}">
-                        <x-filament::icon :icon="$c['icon']" style="width:1.45rem;height:1.45rem;" />
-                    </span>
+            <a href="{{ $c['url'] }}" class="ar-kpi ar-kpi--{{ $c['tone'] }}">
+                <span class="ar-kpi-icon"><x-filament::icon :icon="$c['icon']" class="ar-kpi-icon-svg" /></span>
+                <span class="ar-kpi-body">
+                    <span class="ar-kpi-value">{{ $c['value'] }}</span>
                     <span class="ar-kpi-label">{{ $c['label'] }}</span>
-                </div>
-                <div class="ar-kpi-value">{{ $c['value'] }}@if ($c['unit'])<small>{{ $c['unit'] }}</small>@endif</div>
-            </div>
+                </span>
+                <x-filament::icon icon="heroicon-m-chevron-right" class="ar-kpi-go" />
+            </a>
         @endforeach
     </div>
-    @if ($demo)<p class="ar-demo">{{ __('dashboard.demo_notice') }}</p>@endif
 </x-filament-widgets::widget>
