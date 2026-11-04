@@ -55,7 +55,7 @@ class AccessControlTest extends AlraedTestCase
 
     public function test_language_switch_never_redirects_off_site(): void
     {
-        $this->get('/lang/en', ['referer' => 'https://evil.example/phish'])->assertRedirect(route('home'));
+        $this->get('/lang/en', ['referer' => 'https://evil.example/phish'])->assertRedirect(route('site.home'));
     }
 
     public function test_private_files_are_authorised_and_served_safely(): void
