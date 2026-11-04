@@ -23,17 +23,19 @@ class EditTransfer extends EditRecord
                 ->label(__('fields.change_status'))
                 ->icon('heroicon-o-arrow-path')
                 ->color('primary')
-                ->visible(fn () => $this->getRecord()->status->next() !== [])
+                ->visible(fn () => $this->transitionOptions() !== [])
                 ->schema([
                     Select::make('status')->label(__('fields.new_status'))->required()->native(false)
-                        ->options(fn () => collect($this->getRecord()->status->next())->mapWithKeys(fn (TransferStatus $s) => [$s->value => $s->getLabel()])->all()),
+                        ->options(fn () => $this->transitionOptions()),
                     Textarea::make('note')->label(__('fields.status_note'))->rows(2),
                 ])
                 ->action(function (array $data) {
                     /** @var Transfer $record */
                     $record = $this->getRecord();
+                    $to = TransferStatus::from($data['status']);
+                    abort_unless(auth()->user()->can('transition', [$record, $to]), 403);
                     try {
-                        $record->transitionTo(TransferStatus::from($data['status']), $data['note'] ?? null);
+                        $record->transitionTo($to, $data['note'] ?? null);
                         Notification::make()->title(__('fields.transition_done'))->success()->send();
                         $this->redirect(static::getResource()::getUrl('edit', ['record' => $record]));
                     } catch (InvalidTransferTransition $e) {
@@ -41,5 +43,17 @@ class EditTransfer extends EditRecord
                     }
                 }),
         ];
+    }
+
+    /** Next statuses the current user is allowed to choose. @return array<string, string> */
+    private function transitionOptions(): array
+    {
+        /** @var Transfer $record */
+        $record = $this->getRecord();
+
+        return collect($record->allowedNextStatuses())
+            ->filter(fn (TransferStatus $s) => auth()->user()?->can('transition', [$record, $s]))
+            ->mapWithKeys(fn (TransferStatus $s) => [$s->value => $s->getLabel()])
+            ->all();
     }
 }

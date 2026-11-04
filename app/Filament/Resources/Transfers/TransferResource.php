@@ -7,12 +7,14 @@ use App\Enums\TransferType;
 use App\Filament\Resources\Transfers\Pages\CreateTransfer;
 use App\Filament\Resources\Transfers\Pages\EditTransfer;
 use App\Filament\Resources\Transfers\Pages\ListTransfers;
+use App\Filament\Resources\Transfers\Pages\ViewTransfer;
 use App\Filament\Resources\Transfers\RelationManagers\ReceiptsRelationManager;
 use App\Filament\Resources\Transfers\RelationManagers\StatusLogsRelationManager;
 use App\Models\Customer;
 use App\Models\PaymentAccount;
 use App\Models\Transfer;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
@@ -51,7 +53,7 @@ class TransferResource extends Resource
             ->relationship(\Illuminate\Support\Str::camel(str_replace('_id', '', $field)), 'code')->searchable()->preload()->native(false);
 
         return $schema->components([
-            Section::make(__('fields.basic'))->columns(3)->columnSpanFull()->schema([
+            Section::make(__('fields.basic'))->columns(3)->columnSpanFull()->disabled(fn (?Transfer $record): bool => (bool) $record?->isFinanciallyLocked())->schema([
                 Placeholder::make('reference_display')->label(__('fields.reference'))
                     ->content(fn (?Transfer $record) => $record?->reference ?? __('fields.auto_generated')),
                 Placeholder::make('status_display')->label(__('fields.status'))
@@ -65,7 +67,7 @@ class TransferResource extends Resource
                 Select::make('country_id')->label(__('fields.country'))->relationship('country', static::nameColumn())->searchable()->preload()->nullable(),
             ]),
 
-            Section::make(__('fields.amounts'))->columns(4)->columnSpanFull()->schema([
+            Section::make(__('fields.amounts'))->columns(4)->columnSpanFull()->disabled(fn (?Transfer $record): bool => (bool) $record?->isFinanciallyLocked())->schema([
                 TextInput::make('send_amount')->label(__('fields.send_amount'))->numeric()->inputMode('decimal')->minValue(0),
                 $currency('send_currency_id', 'fields.send_currency'),
                 TextInput::make('rate')->label(__('fields.rate'))->numeric()->inputMode('decimal')->minValue(0),
@@ -81,7 +83,7 @@ class TransferResource extends Resource
                         ->orderBy('internal_name')->pluck('internal_name', 'id')->all()),
             ]),
 
-            Section::make(__('fields.parties'))->columns(2)->columnSpanFull()->schema([
+            Section::make(__('fields.parties'))->columns(2)->columnSpanFull()->disabled(fn (?Transfer $record): bool => (bool) $record?->isFinanciallyLocked())->schema([
                 TextInput::make('sender_name')->label(__('fields.sender_name'))->maxLength(150),
                 TextInput::make('beneficiary_name')->label(__('fields.beneficiary_name'))->maxLength(150),
                 TextInput::make('beneficiary_details.bank_name')->label(__('fields.d_bank_name')),
@@ -95,7 +97,8 @@ class TransferResource extends Resource
                 DateTimePicker::make('scheduled_at')->label(__('fields.scheduled_at'))->seconds(false),
                 Textarea::make('internal_notes')->label(__('fields.internal_notes'))->rows(3)->columnSpanFull(),
                 FileUpload::make('delivery_proof_file')->label(__('fields.delivery_proof'))->disk('local')->directory('proofs')->visibility('private')
-                    ->acceptedFileTypes(['image/*', 'application/pdf'])->maxSize(8192)->openable()->downloadable()->columnSpanFull(),
+                    ->disabled(fn (?Transfer $record): bool => (bool) $record?->status->isTerminal())
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])->maxSize(8192)->openable()->downloadable()->columnSpanFull(),
             ]),
         ]);
     }
@@ -123,7 +126,7 @@ class TransferResource extends Resource
                 SelectFilter::make('service_id')->label(__('fields.service'))->relationship('service', static::nameColumn())->preload(),
                 SelectFilter::make('assigned_user_id')->label(__('fields.assigned_user'))->relationship('assignedUser', 'name')->preload(),
             ])
-            ->recordActions([EditAction::make()])
+            ->recordActions([ViewAction::make(), EditAction::make()])
             ->paginated([25, 50, 100]);
     }
 
@@ -137,6 +140,7 @@ class TransferResource extends Resource
         return [
             'index' => ListTransfers::route('/'),
             'create' => CreateTransfer::route('/create'),
+            'view' => ViewTransfer::route('/{record}'),
             'edit' => EditTransfer::route('/{record}/edit'),
         ];
     }

@@ -107,4 +107,9 @@ return array (
   'receipts_total' => 'Receipts total',
   'delivery_blocked' => 'Cannot deliver: at least one receipt, all receipts verified, and a delivery proof are required.',
   'duplicate_ref' => 'This transaction reference already exists on another receipt',
+  'transfer_locked' => 'This transfer is financially locked after approval; these fields cannot be changed',
+  'receipt_locked' => 'This receipt cannot be changed in its current state',
+  'receipt_not_verifiable' => 'A receipt can only be verified while the transfer is pending verification or under review, and the receipt is pending',
+  'receipt_not_deliverable' => 'A receipt can only be delivered after it is verified and the transfer is approved',
+  'receipts_closed' => 'Receipts cannot be added to an approved or closed transfer',
 );

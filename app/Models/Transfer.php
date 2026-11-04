@@ -45,6 +45,20 @@ class Transfer extends Model
             $t->reference ??= static::nextReference();
         });
 
+        static::updating(function (self $t) {
+            $original = TransferStatus::tryFrom((string) $t->getRawOriginal('status'));
+            if (! $original?->isFinanciallyLocked()) {
+                return;
+            }
+
+            $allowed = $original->isTerminal() ? self::CLOSED_EDITABLE : self::LOCKED_EDITABLE;
+            $illegal = array_diff(array_keys($t->getDirty()), $allowed);
+
+            if ($illegal !== []) {
+                throw new InvalidTransferTransition(__('fields.transfer_locked') . ' (' . implode(', ', $illegal) . ')');
+            }
+        });
+
         static::created(function (self $t) {
             $t->statusLogs()->create(['from_status' => null, 'to_status' => $t->status->value, 'user_id' => auth()->id()]);
         });
@@ -64,37 +78,82 @@ class Transfer extends Model
         });
     }
 
-    /** The only legal way to change a transfer's status. */
+    /** Columns that may still change after the transfer is financially locked. */
+    private const LOCKED_EDITABLE = [
+        'status', 'priced_by', 'priced_at', 'approved_by', 'approved_at', 'delivered_by', 'delivered_at',
+        'assigned_user_id', 'internal_notes', 'scheduled_at', 'delivery_proof_file', 'updated_at',
+    ];
+
+    /** Columns that may change on a closed (delivered / cancelled) transfer. */
+    private const CLOSED_EDITABLE = ['internal_notes', 'updated_at'];
+
+    /** The status the transfer had before it was put on hold. */
+    public function heldFromStatus(): ?TransferStatus
+    {
+        $from = $this->statusLogs()->reorder()->where('to_status', TransferStatus::OnHold->value)->latest('id')->value('from_status');
+
+        return $from instanceof TransferStatus ? $from : TransferStatus::tryFrom((string) $from);
+    }
+
+    /** @return list<TransferStatus> */
+    public function allowedNextStatuses(): array
+    {
+        if ($this->status !== TransferStatus::OnHold) {
+            return $this->status->next();
+        }
+
+        return array_values(array_unique(array_filter([$this->heldFromStatus(), ...TransferStatus::OnHold->next()]), SORT_REGULAR));
+    }
+
+    public function isFinanciallyLocked(): bool
+    {
+        return $this->status->isFinanciallyLocked();
+    }
+
+    public function acceptsReceipts(): bool
+    {
+        return ! $this->isFinanciallyLocked() && $this->status !== TransferStatus::Rejected;
+    }
+
+    /**
+     * The only legal way to change a transfer's status.
+     * Re-reads the row under a lock, so two staff acting at the same time cannot
+     * both approve or both deliver the same transfer.
+     */
     public function transitionTo(TransferStatus $to, ?string $note = null): void
     {
-        $from = $this->status;
+        DB::transaction(function () use ($to, $note) {
+            /** @var self $fresh */
+            $fresh = static::query()->lockForUpdate()->findOrFail($this->getKey());
+            $from = $fresh->status;
 
-        if (! in_array($to, $from->next(), true)) {
-            throw new InvalidTransferTransition("{$from->value} → {$to->value}");
-        }
+            if (! in_array($to, $fresh->allowedNextStatuses(), true)) {
+                throw new InvalidTransferTransition("{$from->value} → {$to->value}");
+            }
 
-        if ($to === TransferStatus::Delivered && ! $this->canBeDelivered()) {
-            throw new InvalidTransferTransition(__('fields.delivery_blocked'));
-        }
+            if ($to === TransferStatus::Delivered && ! $fresh->canBeDelivered()) {
+                throw new InvalidTransferTransition(__('fields.delivery_blocked'));
+            }
 
-        DB::transaction(function () use ($from, $to, $note) {
-            $this->status = $to;
             $uid = auth()->id();
+            $fresh->status = $to;
             match ($to) {
-                TransferStatus::PendingCustomerApproval => $this->forceFill(['priced_by' => $uid, 'priced_at' => now()]),
-                TransferStatus::Approved => $this->forceFill(['approved_by' => $uid, 'approved_at' => now()]),
-                TransferStatus::Delivered => $this->forceFill(['delivered_by' => $uid, 'delivered_at' => now()]),
+                TransferStatus::PendingCustomerApproval => $fresh->forceFill(['priced_by' => $uid, 'priced_at' => now()]),
+                TransferStatus::Approved => $fresh->forceFill(['approved_by' => $uid, 'approved_at' => now()]),
+                TransferStatus::Delivered => $fresh->forceFill(['delivered_by' => $uid, 'delivered_at' => now()]),
                 default => null,
             };
-            $this->save();
-            $this->statusLogs()->create(['from_status' => $from->value, 'to_status' => $to->value, 'user_id' => $uid, 'note' => $note]);
+            $fresh->save();
+            $fresh->statusLogs()->create(['from_status' => $from->value, 'to_status' => $to->value, 'user_id' => $uid, 'note' => $note]);
+
+            $this->setRawAttributes($fresh->getAttributes(), true);
         });
     }
 
     /** Delivery requires verified and delivered receipts, plus a delivery proof file. */
     public function canBeDelivered(): bool
     {
-        $receipts = $this->receipts()->get();
+        $receipts = $this->receipts()->lockForUpdate()->get();
 
         return $receipts->isNotEmpty()
             && $receipts->every(fn (Receipt $r) => $r->verification_status === \App\Enums\ReceiptVerification::Verified)
