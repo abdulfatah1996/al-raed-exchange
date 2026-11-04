@@ -2,9 +2,7 @@
 
 namespace App\Filament\Resources\Transfers\RelationManagers;
 
-use App\Enums\ReceiptDelivery;
-use App\Enums\ReceiptVerification;
-use App\Exceptions\InvalidReceiptDelivery;
+use App\Exceptions\InvalidReceiptState;
 use App\Models\PaymentAccount;
 use App\Models\Receipt;
 use Filament\Actions\Action;
@@ -45,9 +43,13 @@ class ReceiptsRelationManager extends RelationManager
             Select::make('delivery_method_id')->label(__('fields.delivery_method'))->relationship('deliveryMethod', app()->getLocale() === 'en' ? 'name_en' : 'name_ar')->searchable()->preload()->native(false),
             TextInput::make('sender_name')->label(__('fields.sender_name'))->maxLength(150),
             TextInput::make('external_ref')->label(__('fields.external_ref'))->maxLength(150)->columnSpan(2)
-                ->unique(ignoreRecord: true)->validationMessages(['unique' => __('fields.duplicate_ref')]),
+                ->rule(fn (?Receipt $record) => function (string $attribute, $value, \Closure $fail) use ($record) {
+                    if (Receipt::refIsTaken($value, $record?->getKey())) {
+                        $fail(__('fields.duplicate_ref'));
+                    }
+                }),
             FileUpload::make('receipt_file')->label(__('fields.receipt_file'))->disk('local')->directory('receipts')->visibility('private')
-                ->acceptedFileTypes(['image/*', 'application/pdf'])->maxSize(8192)->openable()->downloadable(),
+                ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])->maxSize(8192)->openable()->downloadable(),
             Textarea::make('notes')->label(__('fields.notes'))->rows(2)->columnSpanFull(),
         ]);
     }
@@ -70,30 +72,36 @@ class ReceiptsRelationManager extends RelationManager
                 TextColumn::make('verifier.name')->label(__('fields.verified_by'))->placeholder('—')->toggleable(),
             ])
             ->defaultSort('number')
-            ->headerActions([CreateAction::make()->modalWidth('4xl')])
+            ->headerActions([
+                CreateAction::make()->modalWidth('4xl')
+                    ->visible(fn () => $this->getOwnerRecord()->acceptsReceipts() && auth()->user()?->can('create', Receipt::class)),
+            ])
             ->recordActions([
-                EditAction::make()->modalWidth('4xl')->visible(fn (Receipt $r) => $r->verification_status !== ReceiptVerification::Verified),
-                Action::make('verify')->label(__('fields.verify'))->icon('heroicon-o-check-badge')->color('success')
-                    ->visible(fn (Receipt $r) => $r->verification_status !== ReceiptVerification::Verified)
-                    ->schema([Textarea::make('note')->label(__('fields.verification_note'))->rows(2)])
-                    ->requiresConfirmation()
-                    ->action(function (Receipt $r, array $data) { $r->verify($data['note'] ?? null); Notification::make()->title(__('fields.verify'))->success()->send(); }),
-                Action::make('reject')->label(__('fields.reject'))->icon('heroicon-o-x-circle')->color('danger')
-                    ->visible(fn (Receipt $r) => $r->verification_status === ReceiptVerification::Pending)
-                    ->schema([Textarea::make('note')->label(__('fields.verification_note'))->rows(2)->required()])
-                    ->requiresConfirmation()
-                    ->action(function (Receipt $r, array $data) { $r->reject($data['note']); Notification::make()->title(__('fields.reject'))->warning()->send(); }),
-                Action::make('deliver')->label(__('fields.mark_delivered'))->icon('heroicon-o-truck')->color('primary')
-                    ->visible(fn (Receipt $r) => $r->verification_status === ReceiptVerification::Verified && $r->delivery_status !== ReceiptDelivery::Delivered)
-                    ->requiresConfirmation()
-                    ->action(function (Receipt $r) {
-                        try {
-                            $r->markDelivered();
-                            Notification::make()->title(__('fields.mark_delivered'))->success()->send();
-                        } catch (InvalidReceiptDelivery $e) {
-                            Notification::make()->title(__('fields.transition_failed'))->body($e->getMessage())->danger()->send();
-                        }
-                    }),
+                EditAction::make()->modalWidth('4xl')->authorize('update'),
+                $this->guarded(Action::make('verify')->label(__('fields.verify'))->icon('heroicon-o-check-badge')->color('success')
+                    ->authorize('verify')
+                    ->schema([Textarea::make('note')->label(__('fields.verification_note'))->rows(2)]),
+                    fn (Receipt $r, array $data) => $r->verify($data['note'] ?? null), 'success'),
+                $this->guarded(Action::make('reject')->label(__('fields.reject'))->icon('heroicon-o-x-circle')->color('danger')
+                    ->authorize('reject')
+                    ->schema([Textarea::make('note')->label(__('fields.verification_note'))->rows(2)->required()]),
+                    fn (Receipt $r, array $data) => $r->reject($data['note']), 'warning'),
+                $this->guarded(Action::make('deliver')->label(__('fields.mark_delivered'))->icon('heroicon-o-truck')->color('primary')
+                    ->authorize('deliver'),
+                    fn (Receipt $r) => $r->markDelivered(), 'success'),
             ]);
+    }
+
+    /** Confirmation + domain-rule errors shown as a notification instead of a 500 page. */
+    private function guarded(Action $action, \Closure $run, string $tone): Action
+    {
+        return $action->requiresConfirmation()->action(function (Receipt $record, array $data) use ($action, $run, $tone) {
+            try {
+                $run($record, $data);
+                Notification::make()->title($action->getLabel())->status($tone)->send();
+            } catch (InvalidReceiptState $e) {
+                Notification::make()->title(__('fields.transition_failed'))->body($e->getMessage())->danger()->send();
+            }
+        });
     }
 }

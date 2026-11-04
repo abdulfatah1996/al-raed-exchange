@@ -43,12 +43,44 @@ enum TransferStatus: string implements HasLabel, HasColor
         return in_array($this, [self::Delivered, self::Cancelled], true);
     }
 
-    /** Allowed next states — the single source of truth for the state machine. */
+    /** Once approved (or frozen/closed), amounts, rates, parties and receipts can no longer change. */
+    public function isFinanciallyLocked(): bool
+    {
+        return in_array($this, [self::Approved, self::InProgress, self::Delivered, self::Cancelled, self::OnHold], true);
+    }
+
+    /** Receipts may be verified only while the transfer is in the checking stage. */
+    public function allowsReceiptVerification(): bool
+    {
+        return in_array($this, [self::PendingVerification, self::UnderReview], true);
+    }
+
+    /** Receipts may be paid out only after approval. */
+    public function allowsReceiptDelivery(): bool
+    {
+        return in_array($this, [self::Approved, self::InProgress], true);
+    }
+
+    /** Permission a user needs to move a transfer INTO this status. */
+    public function requiredPermission(): string
+    {
+        return match ($this) {
+            self::PendingCustomerApproval => \App\Support\Permissions::TRANSFERS_PRICE,
+            self::Approved => \App\Support\Permissions::TRANSFERS_APPROVE,
+            self::Rejected => \App\Support\Permissions::RECEIPTS_VERIFY,
+            self::InProgress, self::Delivered => \App\Support\Permissions::TRANSFERS_DELIVER,
+            self::Cancelled => \App\Support\Permissions::TRANSFERS_CANCEL,
+            default => \App\Support\Permissions::TRANSFERS_UPDATE,
+        };
+    }
+
+    /**
+     * Allowed next states — the single source of truth for the state machine.
+     * OnHold may only return to the status it was held from (see Transfer::allowedNextStatuses())
+     * or be cancelled; it can never be used to skip pricing or verification.
+     */
     public function next(): array
     {
-        $open = [self::New, self::PendingPricing, self::PendingCustomerApproval, self::PendingTransfer,
-                 self::PendingVerification, self::UnderReview, self::Approved, self::InProgress];
-
         return match ($this) {
             self::New => [self::PendingPricing, self::Cancelled, self::OnHold],
             self::PendingPricing => [self::PendingCustomerApproval, self::Cancelled, self::OnHold],
@@ -59,7 +91,7 @@ enum TransferStatus: string implements HasLabel, HasColor
             self::Approved => [self::InProgress, self::OnHold, self::Cancelled],
             self::InProgress => [self::Delivered, self::OnHold],
             self::Rejected => [self::PendingVerification, self::Cancelled],
-            self::OnHold => [...$open, self::Cancelled],
+            self::OnHold => [self::Cancelled],
             self::Delivered, self::Cancelled => [],
         };
     }

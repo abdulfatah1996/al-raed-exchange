@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PrivateFileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,12 +17,14 @@ Route::get('/lang/{locale}', function (string $locale) {
         $user->forceFill(['locale' => $locale])->save();
     }
 
-    return redirect()->back();
-})->name('lang.switch');
+    // Only go "back" to a page on this site — never to a host taken from the Referer header.
+    $previous = url()->previous();
+    $sameHost = parse_url($previous, PHP_URL_HOST) === request()->getHost();
 
-Route::middleware(['auth'])->get('/alraed/files/{path}', function (string $path) {
-    abort_unless(\Illuminate\Support\Str::startsWith($path, ['receipts/', 'proofs/']), 403);
-    abort_unless(\Illuminate\Support\Facades\Storage::disk('local')->exists($path), 404);
+    return redirect()->to($sameHost ? $previous : route('home'));
+})->middleware('throttle:30,1')->name('lang.switch');
 
-    return \Illuminate\Support\Facades\Storage::disk('local')->response($path);
-})->where('path', '.*')->name('files.show');
+Route::middleware(['auth', 'throttle:120,1'])
+    ->get('/alraed/files/{path}', PrivateFileController::class)
+    ->where('path', '.*')
+    ->name('files.show');
