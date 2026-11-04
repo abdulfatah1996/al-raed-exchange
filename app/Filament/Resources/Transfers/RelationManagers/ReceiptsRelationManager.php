@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Transfers\RelationManagers;
 
 use App\Enums\ReceiptDelivery;
 use App\Enums\ReceiptVerification;
+use App\Exceptions\InvalidReceiptDelivery;
 use App\Models\PaymentAccount;
 use App\Models\Receipt;
 use Filament\Actions\Action;
@@ -46,8 +47,7 @@ class ReceiptsRelationManager extends RelationManager
             TextInput::make('external_ref')->label(__('fields.external_ref'))->maxLength(150)->columnSpan(2)
                 ->unique(ignoreRecord: true)->validationMessages(['unique' => __('fields.duplicate_ref')]),
             FileUpload::make('receipt_file')->label(__('fields.receipt_file'))->disk('local')->directory('receipts')->visibility('private')
-                ->acceptedFileTypes(['image/*', 'application/pdf'])->maxSize(8192)->openable()->downloadable()
-                ->getUploadedFileUrlUsing(fn (string $file): string => route('files.show', ['path' => $file])),
+                ->acceptedFileTypes(['image/*', 'application/pdf'])->maxSize(8192)->openable()->downloadable(),
             Textarea::make('notes')->label(__('fields.notes'))->rows(2)->columnSpanFull(),
         ]);
     }
@@ -86,7 +86,14 @@ class ReceiptsRelationManager extends RelationManager
                 Action::make('deliver')->label(__('fields.mark_delivered'))->icon('heroicon-o-truck')->color('primary')
                     ->visible(fn (Receipt $r) => $r->verification_status === ReceiptVerification::Verified && $r->delivery_status !== ReceiptDelivery::Delivered)
                     ->requiresConfirmation()
-                    ->action(function (Receipt $r) { $r->markDelivered(); Notification::make()->title(__('fields.mark_delivered'))->success()->send(); }),
+                    ->action(function (Receipt $r) {
+                        try {
+                            $r->markDelivered();
+                            Notification::make()->title(__('fields.mark_delivered'))->success()->send();
+                        } catch (InvalidReceiptDelivery $e) {
+                            Notification::make()->title(__('fields.transition_failed'))->body($e->getMessage())->danger()->send();
+                        }
+                    }),
             ]);
     }
 }

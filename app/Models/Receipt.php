@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ReceiptDelivery;
 use App\Enums\ReceiptVerification;
+use App\Exceptions\InvalidReceiptDelivery;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -47,7 +48,19 @@ class Receipt extends Model
 
     public function markDelivered(): void
     {
-        $this->forceFill(['delivery_status' => ReceiptDelivery::Delivered, 'delivered_by' => auth()->id(), 'delivered_at' => now()])->save();
+        if ($this->verification_status !== ReceiptVerification::Verified) {
+            throw new InvalidReceiptDelivery(__('fields.delivery_blocked'));
+        }
+
+        if ($this->delivery_status === ReceiptDelivery::Delivered) {
+            return;
+        }
+
+        $this->forceFill([
+            'delivery_status' => ReceiptDelivery::Delivered,
+            'delivered_by' => auth()->id(),
+            'delivered_at' => now(),
+        ])->save();
     }
 
     public function transfer(): BelongsTo { return $this->belongsTo(Transfer::class); }

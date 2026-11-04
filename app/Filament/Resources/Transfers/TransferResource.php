@@ -95,8 +95,7 @@ class TransferResource extends Resource
                 DateTimePicker::make('scheduled_at')->label(__('fields.scheduled_at'))->seconds(false),
                 Textarea::make('internal_notes')->label(__('fields.internal_notes'))->rows(3)->columnSpanFull(),
                 FileUpload::make('delivery_proof_file')->label(__('fields.delivery_proof'))->disk('local')->directory('proofs')->visibility('private')
-                    ->acceptedFileTypes(['image/*', 'application/pdf'])->maxSize(8192)->openable()->downloadable()->columnSpanFull()
-                    ->getUploadedFileUrlUsing(fn (string $file): string => route('files.show', ['path' => $file])),
+                    ->acceptedFileTypes(['image/*', 'application/pdf'])->maxSize(8192)->openable()->downloadable()->columnSpanFull(),
             ]),
         ]);
     }

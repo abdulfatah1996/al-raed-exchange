@@ -91,13 +91,14 @@ class Transfer extends Model
         });
     }
 
-    /** Delivery requires: at least one receipt, every receipt verified, and a delivery proof file. */
+    /** Delivery requires verified and delivered receipts, plus a delivery proof file. */
     public function canBeDelivered(): bool
     {
         $receipts = $this->receipts()->get();
 
         return $receipts->isNotEmpty()
             && $receipts->every(fn (Receipt $r) => $r->verification_status === \App\Enums\ReceiptVerification::Verified)
+            && $receipts->every(fn (Receipt $r) => $r->delivery_status === \App\Enums\ReceiptDelivery::Delivered)
             && filled($this->delivery_proof_file);
     }
 
