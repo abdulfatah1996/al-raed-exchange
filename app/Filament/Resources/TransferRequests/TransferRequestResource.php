@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\TransferRequests;
 
+use Filament\Actions\ActionGroup;
+use App\Filament\Tables\ExpandableRow;
 use App\Enums\RequestOperation;
 use App\Enums\RequestStatus;
 use App\Filament\Resources\TransferRequests\Pages\ListTransferRequests;
@@ -67,22 +69,37 @@ class TransferRequestResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                TextColumn::make('reference')->label(__('web.track.reference'))->searchable()->fontFamily('mono')->weight('bold')->copyable(),
-                TextColumn::make('name')->label(__('web.request.name'))->searchable(),
-                TextColumn::make('phone')->label(__('web.request.phone'))->searchable()->toggleable(),
-                TextColumn::make('operation')->label(__('web.admin.operation'))->badge()->color('gray'),
-                TextColumn::make('amount')->label(__('web.request.amount'))
-                    ->formatStateUsing(fn ($state, TransferRequest $r) => rtrim(rtrim(number_format((float) $state, 8, '.', ','), '0'), '.') . ' ' . $r->currency?->code),
-                TextColumn::make('status')->label(__('web.admin.status'))->badge(),
-                TextColumn::make('created_at')->label(__('web.admin.received_at'))->since()->sortable(),
-            ])
+            ->modifyQueryUsing(fn ($query) => $query->with(['country', 'service', 'currency', 'deliveryMethod', 'transfer', 'handler']))
+            ->columns(ExpandableRow::columns([
+                ExpandableRow::labelled(TextColumn::make('reference')->label(__('web.track.reference'))->searchable()->fontFamily('mono')->weight('bold')),
+                ExpandableRow::labelled(TextColumn::make('name')->label(__('web.request.name'))->searchable()->wrap()),
+                ExpandableRow::labelled(TextColumn::make('amount')->label(__('web.request.amount'))
+                    ->formatStateUsing(fn ($state, TransferRequest $r) => ExpandableRow::money($state, $r->currency?->code))),
+                ExpandableRow::labelled(TextColumn::make('status')->label(__('web.admin.status'))->badge()),
+                ExpandableRow::labelled(TextColumn::make('created_at')->label(__('web.admin.received_at'))->since()->sortable()),
+            ], function (TransferRequest $r) {
+                $n = app()->getLocale() === 'en' ? 'name_en' : 'name_ar';
+
+                return [
+                    __('web.request.phone') => ExpandableRow::code($r->phone),
+                    __('web.admin.operation') => $r->operation,
+                    __('web.request.country') => $r->country?->{$n},
+                    __('web.request.service') => $r->service?->{$n},
+                    __('web.request.delivery') => $r->deliveryMethod?->{$n},
+                    __('web.request.receive_via') => $r->receive_via,
+                    __('web.admin.received_at') => $r->created_at,
+                    __('web.admin.handled_by') => $r->handler?->name,
+                    __('admin.common.linked_transfer') => ExpandableRow::code($r->transfer?->reference),
+                    __('web.request.notes') => ExpandableRow::wide($r->notes),
+                ];
+            }))
             ->defaultSort('id', 'desc')
             ->filters([
                 SelectFilter::make('status')->label(__('web.admin.status'))->options(RequestStatus::class)->default(RequestStatus::New->value),
                 SelectFilter::make('operation')->label(__('web.admin.operation'))->options(RequestOperation::class),
             ])
-            ->recordActions([
+            ->recordUrl(null)->recordAction(null)
+            ->recordActions([ActionGroup::make([
                 ViewAction::make(),
                 Action::make('whatsapp')->label(__('web.admin.whatsapp'))->icon('heroicon-o-chat-bubble-left-right')->color('success')
                     ->url(fn (TransferRequest $r) => 'https://wa.me/' . preg_replace('/\D+/', '', $r->phone), shouldOpenInNewTab: true),
@@ -106,7 +123,7 @@ class TransferRequestResource extends Resource
                 Action::make('close')->label(__('web.admin.close'))->icon('heroicon-o-x-mark')->color('gray')
                     ->authorize('handle')->requiresConfirmation()
                     ->action(fn (TransferRequest $r) => $r->close()),
-            ])
+            ])->tooltip(__('admin.common.actions'))])
             ->paginated([25, 50, 100]);
     }
 

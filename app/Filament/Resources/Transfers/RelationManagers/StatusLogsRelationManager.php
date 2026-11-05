@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Transfers\RelationManagers;
 
+use App\Filament\Tables\ExpandableRow;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -23,7 +24,7 @@ class StatusLogsRelationManager extends RelationManager
                 TextColumn::make('to_status')->label(__('fields.to_status'))->badge(),
                 TextColumn::make('user.name')->label(__('fields.user'))->placeholder('—'),
                 TextColumn::make('note')->label(__('fields.note'))->wrap()->placeholder('—'),
-                TextColumn::make('created_at')->label(__('fields.created_at'))->dateTime('Y-m-d H:i'),
+                ExpandableRow::dateTime('created_at')->label(__('fields.created_at')),
             ])
             ->defaultSort('id', 'desc')
             ->paginated(false);

@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Transfers\RelationManagers;
 
+use App\Filament\Tables\ExpandableRow;
+use Filament\Actions\ActionGroup;
 use App\Exceptions\InvalidReceiptState;
 use App\Models\PaymentAccount;
 use App\Models\Receipt;
@@ -66,27 +68,34 @@ class ReceiptsRelationManager extends RelationManager
 
     public function table(Table $table): Table
     {
-        $money = fn ($state, ?string $code) => $state === null ? '—' : rtrim(rtrim(number_format((float) $state, 8, '.', ','), '0'), '.') . ' ' . ($code ?? '');
-
         return $table
-            ->columns([
-                TextColumn::make('number')->label('#')->sortable(),
-                TextColumn::make('amount')->label(__('fields.amount'))->formatStateUsing(fn ($state, Receipt $r) => $money($state, $r->currency?->code))->weight('bold'),
-                TextColumn::make('paymentAccount.internal_name')->label(__('fields.payment_account'))->placeholder('—'),
-                TextColumn::make('deliver_amount')->label(__('fields.deliver_amount'))->formatStateUsing(fn ($state, Receipt $r) => $money($state, $r->deliverCurrency?->code)),
-                TextColumn::make('external_ref')->label(__('fields.external_ref'))->fontFamily('mono')->copyable()->placeholder('—')->limit(18),
-                TextColumn::make('receipt_file')->label(__('fields.receipt_file'))->placeholder('—')->formatStateUsing(fn () => '📎')
-                    ->url(fn (Receipt $r) => $r->receipt_file ? route('files.show', ['path' => $r->receipt_file]) : null, shouldOpenInNewTab: true),
-                TextColumn::make('verification_status')->label(__('fields.verification_status'))->badge(),
-                TextColumn::make('delivery_status')->label(__('fields.delivery_status'))->badge(),
-                TextColumn::make('verifier.name')->label(__('fields.verified_by'))->placeholder('—')->toggleable(),
-            ])
+            ->modifyQueryUsing(fn ($query) => $query->with(['currency', 'deliverCurrency', 'paymentAccount', 'deliveryMethod', 'verifier']))
+            ->columns(ExpandableRow::columns([
+                ExpandableRow::labelled(TextColumn::make('number')->label('#')->sortable()->weight('bold')),
+                ExpandableRow::labelled(TextColumn::make('amount')->label(__('fields.amount'))->weight('bold')
+                    ->formatStateUsing(fn ($state, Receipt $r) => ExpandableRow::money($state, $r->currency?->code))),
+                ExpandableRow::labelled(TextColumn::make('paymentAccount.internal_name')->label(__('fields.payment_account'))->placeholder('—')->wrap()),
+                ExpandableRow::labelled(TextColumn::make('verification_status')->label(__('fields.verification_status'))->badge()),
+                ExpandableRow::labelled(TextColumn::make('delivery_status')->label(__('fields.delivery_status'))->badge()),
+            ], fn (Receipt $r) => [
+                __('fields.deliver_amount') => ExpandableRow::money($r->deliver_amount, $r->deliverCurrency?->code),
+                __('fields.rate') => $r->rate === null ? null : rtrim(rtrim((string) $r->rate, '0'), '.'),
+                __('fields.fee_amount') => ExpandableRow::money($r->fee_amount, null),
+                __('fields.delivery_method') => $r->deliveryMethod?->{app()->getLocale() === 'en' ? 'name_en' : 'name_ar'},
+                __('fields.external_ref') => ExpandableRow::code($r->external_ref),
+                __('fields.sender_name') => $r->sender_name,
+                __('fields.receipt_file') => ExpandableRow::link(__('fields.receipt_file'), $r->receipt_file ? route('files.show', ['path' => $r->receipt_file]) : null),
+                __('fields.verified_by') => $r->verifier?->name,
+                __('admin.common.delivered_at') => $r->delivered_at,
+                __('fields.notes') => ExpandableRow::wide($r->notes),
+            ]))
             ->defaultSort('number')
             ->headerActions([
                 CreateAction::make()->modalWidth('4xl')
                     ->visible(fn () => $this->getOwnerRecord()->acceptsReceipts() && auth()->user()?->can('create', Receipt::class)),
             ])
-            ->recordActions([
+            ->recordUrl(null)->recordAction(null)
+            ->recordActions([ActionGroup::make([
                 EditAction::make()->modalWidth('4xl')->authorize('update'),
                 $this->guarded(Action::make('verify')->label(__('fields.verify'))->icon('heroicon-o-check-badge')->color('success')
                     ->authorize('verify')
@@ -99,7 +108,7 @@ class ReceiptsRelationManager extends RelationManager
                 $this->guarded(Action::make('deliver')->label(__('fields.mark_delivered'))->icon('heroicon-o-truck')->color('primary')
                     ->authorize('deliver'),
                     fn (Receipt $r) => $r->markDelivered(), 'success'),
-            ]);
+            ])->tooltip(__('admin.common.actions'))]);
     }
 
     /** Confirmation + domain-rule errors shown as a notification instead of a 500 page. */

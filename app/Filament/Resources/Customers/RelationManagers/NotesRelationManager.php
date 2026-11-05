@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Customers\RelationManagers;
 
+use App\Filament\Tables\ExpandableRow;
 use Filament\Actions\CreateAction;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -31,7 +32,7 @@ class NotesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('note')->label(__('fields.note'))->wrap(),
                 TextColumn::make('user.name')->label(__('fields.user'))->placeholder('—'),
-                TextColumn::make('created_at')->label(__('fields.created_at'))->dateTime('Y-m-d H:i')->sortable(),
+                ExpandableRow::dateTime('created_at')->label(__('fields.created_at'))->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
             ->headerActions([CreateAction::make()->label(__('fields.note'))]);

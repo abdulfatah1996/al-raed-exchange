@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PaymentAccount extends Model
 {
+    use Concerns\Auditable;
+
     protected $fillable = [
         'type', 'internal_name', 'service_id', 'country_id', 'currency_id', 'beneficiary_name', 'details', 'status',
         'min_amount', 'max_amount', 'daily_cap', 'instructions_ar', 'instructions_en', 'notes', 'last_verified_at', 'created_by',

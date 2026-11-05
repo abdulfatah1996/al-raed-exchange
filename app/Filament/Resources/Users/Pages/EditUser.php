@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
+use App\Models\AuditLog;
 use App\Models\User;
 use App\Support\Permissions;
 use Filament\Notifications\Notification;
@@ -38,8 +39,10 @@ class EditUser extends EditRecord
         try {
             DB::transaction(function () use ($record, $data, $role) {
                 $record->forceFill($data)->save();
-                if ($role) {
+                $previous = $record->getRoleNames()->first();
+                if ($role && $role !== $previous) {
                     $record->syncRoles([$role]);
+                    AuditLog::record($record, 'role_changed', ['role' => $previous], ['role' => $role]);
                 }
             });
         } catch (RuntimeException $e) {

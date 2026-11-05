@@ -30,6 +30,23 @@ class NotificationsTest extends AlraedTestCase
         $this->assertSame([], $this->inbox($inactive));
     }
 
+    public function test_html_in_a_public_request_name_is_shown_as_text_in_staff_notifications(): void
+    {
+        $employee = $this->staff(Permissions::ROLE_EMPLOYEE, ['locale' => 'en']);
+
+        TransferRequest::create([
+            'name' => '<a href="https://evil.example/login">Click to verify</a><img src=x>',
+            'phone' => '+970598000111', 'operation' => 'withdraw', 'amount' => 700,
+        ]);
+
+        $data = $employee->fresh()->notifications->first()->data;
+        $html = \Filament\Notifications\Notification::fromArray($data)->toEmbeddedHtml();
+
+        $this->assertStringNotContainsString('<a href="https://evil.example', $html);
+        $this->assertStringNotContainsString('<img', $html);
+        $this->assertStringContainsString('Click to verify', $html);
+    }
+
     public function test_notifications_are_written_immediately_without_a_queue_worker(): void
     {
         config(['queue.default' => 'database']);

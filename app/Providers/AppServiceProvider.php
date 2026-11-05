@@ -28,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
         }
 
         Gate::policy(Role::class, RolePolicy::class);
+        Gate::policy(\App\Models\AuditLog::class, \App\Policies\AuditLogPolicy::class);
     }
 }
