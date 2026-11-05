@@ -299,3 +299,6 @@
 .alraed-diff-old small { text-decoration: none; }
 .alraed-diff-new { background: rgb(22 163 74 / .08); color: #166534; }
 .dark .alraed-diff-old { color: #fda4af; } .dark .alraed-diff-new { color: #86efac; }
+/* "Next step" hint above the receipts table */
+.fi-ta-header-description { margin-top: .5rem; padding: .55rem .85rem; border-radius: 10px; background: var(--ar-gold-50); border: 1px solid rgb(201 162 39 / .35); color: #6b5410 !important; font-weight: 600; font-size: .85rem; line-height: 1.7; }
+.dark .fi-ta-header-description { background: rgb(201 162 39 / .1); color: var(--ar-gold-300) !important; }
