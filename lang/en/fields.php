@@ -113,4 +113,12 @@ return array (
   'receipt_not_deliverable' => 'A receipt can only be delivered after it is verified and the transfer is approved',
   'receipts_closed' => 'Receipts cannot be added to an approved or closed transfer',
   'receipt' => 'Receipt',
+  'hint' => [
+    'add_receipt' => 'Next: add the transfer receipt with "New receipt".',
+    'move_to_verification' => 'Next: move the transfer to "Pending verification" with "Change status" at the top; "Verify" then appears in the ⋮ menu of each receipt.',
+    'verify' => 'Next: confirm the money actually arrived, then choose "Verify" (or "Reject") from the ⋮ menu of each receipt.',
+    'approve' => 'All receipts are verified. Next: approve the transfer with "Change status" → "Approved".',
+    'deliver' => 'Next: hand the money over, then choose "Mark delivered" from the ⋮ menu of each receipt.',
+    'close' => 'All receipts are delivered. Last step: attach the delivery proof under "Edit", then move the transfer to "Delivered".',
+  ],
 );

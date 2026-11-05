@@ -6,6 +6,9 @@ use App\Filament\Tables\ExpandableRow;
 use Filament\Actions\ActionGroup;
 use App\Exceptions\InvalidReceiptState;
 use App\Models\PaymentAccount;
+use App\Enums\ReceiptDelivery;
+use App\Enums\ReceiptVerification;
+use App\Enums\TransferStatus;
 use App\Models\Receipt;
 use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
@@ -69,6 +72,7 @@ class ReceiptsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->description(fn () => $this->nextStepHint())
             ->modifyQueryUsing(fn ($query) => $query->with(['currency', 'deliverCurrency', 'paymentAccount', 'deliveryMethod', 'verifier']))
             ->columns(ExpandableRow::columns([
                 ExpandableRow::labelled(TextColumn::make('number')->label('#')->sortable()->weight('bold')),
@@ -112,6 +116,33 @@ class ReceiptsRelationManager extends RelationManager
     }
 
     /** Confirmation + domain-rule errors shown as a notification instead of a 500 page. */
+    /** One line telling staff what to do next with the receipts of this transfer. */
+    private function nextStepHint(): ?string
+    {
+        /** @var \App\Models\Transfer $transfer */
+        $transfer = $this->getOwnerRecord();
+        $receipts = $transfer->receipts()->get();
+        $status = $transfer->status;
+
+        if ($receipts->isEmpty()) {
+            return $transfer->acceptsReceipts() ? __('fields.hint.add_receipt') : null;
+        }
+
+        $pending = $receipts->where('verification_status', ReceiptVerification::Pending)->count();
+        $undelivered = $receipts->where('verification_status', ReceiptVerification::Verified)
+            ->where('delivery_status', '!=', ReceiptDelivery::Delivered)->count();
+
+        return match (true) {
+            in_array($status, [TransferStatus::Delivered, TransferStatus::Cancelled, TransferStatus::Rejected], true) => null,
+            $status->allowsReceiptVerification() && $pending > 0 => __('fields.hint.verify'),
+            $status->allowsReceiptVerification() => __('fields.hint.approve'),
+            $status->allowsReceiptDelivery() && $undelivered > 0 => __('fields.hint.deliver'),
+            $status->allowsReceiptDelivery() => __('fields.hint.close'),
+            $pending > 0 => __('fields.hint.move_to_verification'),
+            default => null,
+        };
+    }
+
     private function guarded(Action $action, \Closure $run, string $tone): Action
     {
         return $action->requiresConfirmation()->action(function (Receipt $record, array $data) use ($action, $run, $tone) {
