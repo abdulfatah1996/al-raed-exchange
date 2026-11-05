@@ -114,4 +114,15 @@ class TransferWorkflowTest extends AlraedTestCase
         $this->assertFalse($admin->can('update', $transfer));
         $this->assertFalse($admin->can('delete', $transfer));
     }
+
+    public function test_status_history_uses_the_application_clock(): void
+    {
+        $this->travelTo(now()->subDays(3)->setTime(10, 15));
+        $transfer = $this->transfer();
+        $this->travel(40)->minutes();
+        $transfer->transitionTo(TransferStatus::PendingPricing);
+
+        $times = $transfer->statusLogs()->reorder('id')->pluck('created_at')->map->format('Y-m-d H:i')->all();
+        $this->assertSame([now()->subMinutes(40)->format('Y-m-d H:i'), now()->format('Y-m-d H:i')], $times);
+    }
 }
