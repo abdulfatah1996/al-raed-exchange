@@ -80,4 +80,28 @@ class DemoDataCommandTest extends AlraedTestCase
 
         $this->assertSame(1, Customer::count());
     }
+
+    public function test_history_is_consistent_and_never_in_the_future(): void
+    {
+        Storage::fake('local');
+        $this->staff(Permissions::ROLE_ADMIN);
+        $this->seed(ReferenceDataSeeder::class);
+
+        $this->artisan('alraed:demo-data', ['--confirm' => 'DELETE', '--admin-name' => 'Admin', '--since' => now()->subDays(45)->toDateString()])->assertSuccessful();
+
+        $this->assertGreaterThan(60, Transfer::count());
+        $this->assertSame(0, \App\Models\TransferStatusLog::where('created_at', '>', now())->count());
+        $this->assertSame(0, Transfer::where('created_at', '<', now()->subDays(46))->count());
+
+        // Each step was performed by the role that owns it.
+        $approvers = \App\Models\TransferStatusLog::where('to_status', TransferStatus::Approved->value)->with('user')->get()->pluck('user')->unique('id');
+        $this->assertTrue($approvers->every(fn ($u) => $u->hasRole(Permissions::ROLE_SUPERVISOR)));
+        $deliverers = \App\Models\TransferStatusLog::where('to_status', TransferStatus::Delivered->value)->with('user')->get()->pluck('user')->unique('id');
+        $this->assertTrue($deliverers->every(fn ($u) => $u->hasRole(Permissions::ROLE_CASHIER)));
+
+        Transfer::where('status', TransferStatus::Delivered)->get()->each(function (Transfer $t) {
+            $this->assertTrue($t->receipts()->get()->every(fn ($r) => $r->delivery_status === \App\Enums\ReceiptDelivery::Delivered));
+            $this->assertNotNull($t->delivery_proof_file);
+        });
+    }
 }

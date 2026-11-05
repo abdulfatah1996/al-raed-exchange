@@ -5,7 +5,9 @@ namespace App\Console\Commands;
 use App\Models\User;
 use App\Support\DataReset;
 use App\Support\Permissions;
+use Carbon\CarbonImmutable;
 use Database\Seeders\DemoDataSeeder;
+use Database\Seeders\HistoricalDemoSeeder;
 use Database\Seeders\ReferenceDataSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Console\Command;
@@ -21,6 +23,7 @@ class DemoData extends Command
 {
     protected $signature = 'alraed:demo-data
         {--admin-name= : Name shown for the administrator in the panel}
+        {--since= : Generate a realistic history from this date (YYYY-MM-DD) up to now}
         {--confirm= : Type DELETE to skip the confirmation question}';
 
     protected $description = 'Delete all transfers, customers, requests and announcements, then load demo data';
@@ -58,7 +61,16 @@ class DemoData extends Command
         $this->callSilently('db:seed', ['--class' => RolesAndPermissionsSeeder::class, '--force' => true]);
         $this->callSilently('db:seed', ['--class' => ReferenceDataSeeder::class, '--force' => true]);
 
-        $summary = (new DemoDataSeeder)->runFor($admin);
+        if ($since = $this->option('since')) {
+            $this->info('Generating history month by month (this can take a few minutes)…');
+            $summary = (new HistoricalDemoSeeder)->runHistory(
+                $admin,
+                CarbonImmutable::parse($since),
+                fn (string $month) => $this->line('  ✓ ' . $month),
+            );
+        } else {
+            $summary = (new DemoDataSeeder)->runFor($admin);
+        }
 
         $this->newLine();
         $this->info('Demo data loaded:');

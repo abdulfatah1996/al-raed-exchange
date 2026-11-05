@@ -32,22 +32,22 @@ use Illuminate\Support\Str;
  */
 class DemoDataSeeder
 {
-    private User $admin;
+    protected User $admin;
 
     /** @var array<string, User> */
-    private array $staff = [];
+    protected array $staff = [];
 
     /** @var array<string, Customer> */
-    private array $customers = [];
+    protected array $customers = [];
 
     /** @var array<string, PaymentAccount> */
-    private array $accounts = [];
+    protected array $accounts = [];
 
-    private Carbon $clock;
+    protected Carbon $clock;
 
-    private int $ref = 1000;
+    protected int $ref = 1000;
 
-    private const PATH = [
+    protected const PATH = [
         TransferStatus::PendingPricing, TransferStatus::PendingCustomerApproval, TransferStatus::PendingTransfer,
         TransferStatus::PendingVerification, TransferStatus::UnderReview, TransferStatus::Approved,
         TransferStatus::InProgress, TransferStatus::Delivered,
@@ -86,7 +86,7 @@ class DemoDataSeeder
 
     // ── People ───────────────────────────────────────────────
 
-    private function staff(): void
+    protected function staff(): void
     {
         foreach ([
             'supervisor' => ['سامي خالد (تجريبي)', Permissions::ROLE_SUPERVISOR],
@@ -107,7 +107,7 @@ class DemoDataSeeder
         }
     }
 
-    private function customers(): void
+    protected function customers(): void
     {
         $this->at(now()->subDays(20));
 
@@ -135,7 +135,7 @@ class DemoDataSeeder
         }
     }
 
-    private function accounts(): void
+    protected function accounts(): void
     {
         foreach ([
             'paypal' => ['paypal', 'PayPal رئيسي (تجريبي)', 'paypal_receive', null, 'USD', ['email' => 'demo-paypal@example.com', 'paypal_me' => 'https://paypal.me/example'], 20, 2000],
@@ -164,7 +164,7 @@ class DemoDataSeeder
 
     // ── Transfers ────────────────────────────────────────────
 
-    private function transfers(\DateTimeInterface $realNow): void
+    protected function transfers(\DateTimeInterface $realNow): void
     {
         $specs = [
             ['ahmad', 4, 'usdt_withdraw', null, 'usdt_withdraw', [1000, 'USDT'], [3620, 'ILS'], 3.62, 'bank_of_palestine_ils', 'usdt', 'Delivered', 'employee', [[1000, 'USDT']]],
@@ -187,7 +187,7 @@ class DemoDataSeeder
         }
     }
 
-    private function transfer(int $i, array $s, \DateTimeInterface $realNow): void
+    protected function transfer(int $i, array $s, \DateTimeInterface $realNow): void
     {
         [$customer, $daysAgo, $service, $country, $type, $send, $deliver, $rate, $method, $account, $targetName, $assignee, $receipts] = $s;
         $extra = $s[13] ?? null;
@@ -267,7 +267,7 @@ class DemoDataSeeder
         }
     }
 
-    private function receipt(Transfer $transfer, float $amount, string $code, ?float $rate, ?array $deliver, ?string $account, ?string $method, int $i, int $n): void
+    protected function receipt(Transfer $transfer, float $amount, string $code, ?float $rate, ?array $deliver, ?string $account, ?string $method, int $i, int $n): void
     {
         $txid = $code === 'USDT'
             ? 'DEMO' . strtoupper(substr(hash('sha256', "tx-$i-$n"), 0, 40))
@@ -284,7 +284,7 @@ class DemoDataSeeder
         ]);
     }
 
-    private function noteFor(TransferStatus $to): ?string
+    protected function noteFor(TransferStatus $to): ?string
     {
         return match ($to) {
             TransferStatus::PendingCustomerApproval => 'أُرسل عرض السعر للعميل على واتساب.',
@@ -298,7 +298,7 @@ class DemoDataSeeder
 
     // ── Website side ─────────────────────────────────────────
 
-    private function websiteRequests(\DateTimeInterface $realNow): void
+    protected function websiteRequests(\DateTimeInterface $realNow): void
     {
         $requests = [
             ['فادي عودة', '+970599002201', 'withdraw', 1500, 'USDT', 'usdt_withdraw', 'bank_of_palestine_ils', 'بنك فلسطين', 'وصلان بمبلغين مختلفين', 'new', 35],
@@ -331,7 +331,7 @@ class DemoDataSeeder
         }
     }
 
-    private function announcements(\DateTimeInterface $realNow): void
+    protected function announcements(\DateTimeInterface $realNow): void
     {
         $this->at(Carbon::parse($realNow)->subDays(3));
         Announcement::create([
@@ -370,7 +370,7 @@ class DemoDataSeeder
     // ── Helpers ──────────────────────────────────────────────
 
     /** A small labelled PNG standing in for a receipt photo, stored on the private disk. */
-    private function file(string $dir, string $label): string
+    protected function file(string $dir, string $label): string
     {
         $path = $dir . '/demo-' . Str::lower(Str::random(12)) . '.png';
 
@@ -396,28 +396,28 @@ class DemoDataSeeder
         return $path;
     }
 
-    private function at(\DateTimeInterface $time): void
+    protected function at(\DateTimeInterface $time): void
     {
         $this->clock = Carbon::parse($time);
         Carbon::setTestNow($this->clock);
     }
 
-    private function tick(int $minutes): void
+    protected function tick(int $minutes): void
     {
         $this->at($this->clock->copy()->addMinutes($minutes));
     }
 
-    private function country(string $code): ?int
+    protected function country(string $code): ?int
     {
         return Country::where('code', $code)->value('id');
     }
 
-    private function currency(string $code): ?int
+    protected function currency(string $code): ?int
     {
         return Currency::where('code', $code)->value('id');
     }
 
-    private function service(string $code): ?int
+    protected function service(string $code): ?int
     {
         return Service::where('code', $code)->value('id');
     }
