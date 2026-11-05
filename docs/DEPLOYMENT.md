@@ -8,6 +8,8 @@
 
 ## بنية المجلدات على السيرفر
 
+<div dir="ltr">
+
 ```text
 ~/domains/<الدومين>/
 ├── laravel_app/          المشروع كاملًا (مستودع Git مربوط بـ GitHub)
@@ -18,6 +20,8 @@
 ~/backups/                النسخ الاحتياطية (خارج مجلد الموقع)
 ~/.ssh/alraed_github      مفتاح النشر (Deploy Key) الخاص بالمستودع
 ```
+
+</div>
 
 `public_html` رابط رمزي إلى `laravel_app/public`، فلا يصل المتصفح إلى `.env` ولا إلى ملفات المشروع.
 
@@ -35,9 +39,13 @@
 
 القائمة الكاملة في `.env.example`. بعد أي تعديل على `.env` شغّل:
 
+<div dir="ltr">
+
 ```bash
 php artisan optimize:clear && php artisan optimize
 ```
+
+</div>
 
 ## ربط السيرفر بـ GitHub (مرة واحدة)
 
@@ -55,6 +63,8 @@ php artisan optimize:clear && php artisan optimize
 
 داخل `laravel_app`:
 
+<div dir="ltr">
+
 ```bash
 php artisan down --retry=60
 git pull --ff-only origin main
@@ -64,6 +74,8 @@ php artisan optimize:clear && php artisan optimize && php artisan filament:optim
 php artisan up
 ```
 
+</div>
+
 - `--ff-only` يرفض السحب إن وُجدت تعديلات محلية على السيرفر، فلا يحدث دمج غير متوقع.
 - ملفات CSS المبنية موجودة في `public/build` داخل المستودع، فلا يحتاج السيرفر إلى Node.
 - `RolesAndPermissionsSeeder` آمن عند تكرار تشغيله: يضيف الصلاحيات الجديدة فقط، ولا يمسح تعديلات المدير.
@@ -71,6 +83,8 @@ php artisan up
 ## النشر الأول (مرة واحدة)
 
 بعد `git clone` ونسخ `.env`:
+
+<div dir="ltr">
 
 ```bash
 composer install --no-dev --optimize-autoloader --no-interaction
@@ -82,15 +96,21 @@ php artisan optimize && php artisan filament:optimize
 chmod 600 .env
 ```
 
+</div>
+
 عند أول دخول إلى `/alraed` يُطلب إعداد تطبيق مصادقة (Google Authenticator أو Microsoft Authenticator). احفظ رموز الاسترداد في مكان آمن.
 
 ## نسخة احتياطية من قاعدة البيانات
 
 دوال `passthru` و`exec` معطّلة في استضافة Hostinger المشتركة، والصيغة `<(...)` لا تعمل هناك. الطريقة التالية هي التي تعمل: ملف اتصال مؤقت بصلاحية 600 يُحذف فورًا بعد الاستخدام، فلا تظهر كلمة المرور على الشاشة.
 
+<div dir="ltr">
+
 ```bash
 DB=$(php -r 'require "vendor/autoload.php"; $app = require "bootstrap/app.php"; $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap(); $c = config("database.connections.mysql"); umask(077); $q = fn ($v) => "\"" . addcslashes((string) $v, "\"\\") . "\""; file_put_contents(getenv("HOME") . "/.alraed-dump.cnf", "[client]\nuser=" . $q($c["username"]) . "\npassword=" . $q($c["password"]) . "\nhost=" . $q($c["host"]) . "\nport=" . (int) $c["port"] . "\n"); echo $c["database"];') && mysqldump --defaults-extra-file="$HOME/.alraed-dump.cnf" --single-transaction --routines --no-tablespaces "$DB" | gzip > ~/backups/db-$(date +%Y%m%d-%H%M).sql.gz; rm -f ~/.alraed-dump.cnf; chmod 600 ~/backups/db-*.sql.gz; ls -lh ~/backups/ | tail -3
 ```
+
+</div>
 
 خذ نسخة قبل كل: `migrate`، و`alraed:demo-data`، و`alraed:clear-data`، وأي تعديل يدوي على البيانات. ونزّل نسخة دورية إلى جهازك، لأن النسخة الموجودة على السيرفر وحده لا تحمي من فقدان الحساب.
 

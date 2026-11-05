@@ -153,6 +153,8 @@
 
 ## التشغيل على جهازك
 
+<div dir="ltr">
+
 ```bash
 git clone git@github.com:abdulfatah1996/al-raed-exchange.git && cd al-raed-exchange
 composer install
@@ -163,6 +165,8 @@ php artisan alraed:create-user --role=admin
 php artisan alraed:demo-data        # اختياري: بيانات تجريبية
 php artisan serve                    # الموقع: http://127.0.0.1:8000  · اللوحة: /alraed
 ```
+
+</div>
 
 لتعديل تصميم الموقع العام: `npm install && npm run build`، ثم ارفع مجلد `public/build` مع التعديل، لأن الاستضافة لا تشغّل Node.
 
@@ -183,6 +187,8 @@ php artisan serve                    # الموقع: http://127.0.0.1:8000  · �
 
 ## بنية المشروع
 
+<div dir="ltr">
+
 ```text
 app/
 ├── Console/Commands/        أوامر alraed:* (create-user, demo-data, clear-data)
@@ -200,6 +206,8 @@ resources/views/site/        قوالب الموقع العام
 tests/Feature/               اختبارات الصلاحيات وسير العمل والموقع والأوامر
 docs/                        دليل النشر ولقطات الشاشة
 ```
+
+</div>
 
 ## ما لم يُبنَ بعد
 
