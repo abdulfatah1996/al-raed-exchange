@@ -3,14 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Models\User;
+use App\Support\DataReset;
 use App\Support\Permissions;
 use Database\Seeders\DemoDataSeeder;
 use Database\Seeders\ReferenceDataSeeder;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 
 /**
  * Replaces all operational data with a realistic demo set, for trying the system.
@@ -27,12 +25,6 @@ class DemoData extends Command
 
     protected $description = 'Delete all transfers, customers, requests and announcements, then load demo data';
 
-    /** Operational tables, children first. */
-    private const TABLES = [
-        'notifications', 'transfer_requests', 'receipts', 'transfer_status_logs', 'transfers',
-        'customer_notes', 'customers', 'payment_accounts', 'announcements',
-    ];
-
     public function handle(): int
     {
         $admin = User::query()->role(Permissions::ROLE_ADMIN)->where('is_active', true)->orderBy('id')->first();
@@ -43,10 +35,8 @@ class DemoData extends Command
         }
 
         $this->warn('This will permanently delete:');
-        foreach (self::TABLES as $table) {
-            if (Schema::hasTable($table)) {
-                $this->line(sprintf('  %-22s %d rows', $table, DB::table($table)->count()));
-            }
+        foreach (DataReset::counts() as $table => $rows) {
+            $this->line(sprintf('  %-22s %d rows', $table, $rows));
         }
         $this->line('  + uploaded receipt and delivery-proof files');
         $this->line('Kept: staff accounts, passwords, 2FA, roles, countries, currencies, services.');
@@ -64,7 +54,7 @@ class DemoData extends Command
             $admin->forceFill(['name' => $name])->save();
         }
 
-        $this->wipe();
+        DataReset::wipe();
         $this->callSilently('db:seed', ['--class' => RolesAndPermissionsSeeder::class, '--force' => true]);
         $this->callSilently('db:seed', ['--class' => ReferenceDataSeeder::class, '--force' => true]);
 
@@ -80,23 +70,5 @@ class DemoData extends Command
         $this->line('To try a role: panel → النظام → المستخدمون → edit → set a password and activate.');
 
         return self::SUCCESS;
-    }
-
-    private function wipe(): void
-    {
-        Schema::disableForeignKeyConstraints();
-        try {
-            foreach (self::TABLES as $table) {
-                if (Schema::hasTable($table)) {
-                    DB::table($table)->truncate();
-                }
-            }
-        } finally {
-            Schema::enableForeignKeyConstraints();
-        }
-
-        foreach (['receipts', 'proofs'] as $dir) {
-            Storage::disk('local')->deleteDirectory($dir);
-        }
     }
 }
