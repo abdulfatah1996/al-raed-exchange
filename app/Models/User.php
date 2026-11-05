@@ -50,6 +50,27 @@ class User extends Authenticatable implements FilamentUser, HasAppAuthentication
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::updating(function (self $user) {
+            if ($user->isDirty('is_active') && ! $user->is_active && $user->isLastActiveAdmin()) {
+                throw new \RuntimeException(__('admin.users.last_admin'));
+            }
+        });
+    }
+
+    /** True when this account is the only active administrator left. */
+    public function isLastActiveAdmin(): bool
+    {
+        return $this->hasRole(Permissions::ROLE_ADMIN)
+            && ! static::query()->role(Permissions::ROLE_ADMIN)->where('is_active', true)->whereKeyNot($this->getKey())->exists();
+    }
+
+    public function hasAppAuthentication(): bool
+    {
+        return filled($this->app_authentication_secret);
+    }
+
     /** Only active staff with the panel permission may enter — in every environment. */
     public function canAccessPanel(Panel $panel): bool
     {

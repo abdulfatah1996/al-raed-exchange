@@ -12,6 +12,6 @@ class ManageAnnouncements extends ManageRecords
 
     protected function getHeaderActions(): array
     {
-        return [CreateAction::make()];
+        return [CreateAction::make()->modalWidth('4xl')];
     }
 }

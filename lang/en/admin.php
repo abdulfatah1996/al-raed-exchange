@@ -1,0 +1,56 @@
+<?php
+
+return [
+    'users' => [
+        'singular' => 'User', 'plural' => 'Users',
+        'name' => 'Name', 'email' => 'Email', 'role' => 'Role', 'active' => 'Active', 'mfa' => 'Two-factor',
+        'password' => 'Password', 'password_new' => 'New password', 'password_confirm' => 'Confirm password',
+        'password_hint' => 'At least 12 characters with letters and numbers. Leave empty to keep the current password.',
+        'self_locked' => 'You cannot change your own role or deactivate yourself.',
+        'section_account' => 'Account', 'section_access' => 'Access',
+        'deactivate' => 'Deactivate', 'activate' => 'Activate', 'deactivated' => 'Account deactivated', 'activated' => 'Account activated',
+        'reset_mfa' => 'Reset two-factor', 'reset_mfa_help' => 'The user will have to set up an authenticator app again at next sign-in.',
+        'mfa_reset_done' => 'Two-factor reset',
+        'last_admin' => 'Not allowed: at least one active administrator must remain.',
+        'created_at' => 'Created', 'locale' => 'Interface language',
+    ],
+    'roles' => [
+        'singular' => 'Role', 'plural' => 'Roles & permissions',
+        'role' => 'Role', 'users_count' => 'Users', 'permissions_count' => 'Permissions', 'permissions' => 'Permissions',
+        'admin_locked' => 'The administrator role always has every permission and cannot be edited.',
+        'descriptions' => [
+            'admin' => 'Every permission, including managing users and roles.',
+            'supervisor' => 'Verifies receipts, approves transfers and manages settings; cannot manage users.',
+            'employee' => 'Handles requests, records customers, transfers and receipts, prices; cannot verify or approve.',
+            'cashier' => 'Delivers approved transfers and attaches delivery proof.',
+            'viewer' => 'Read-only access to transfers, customers and requests.',
+        ],
+    ],
+    'permission_groups' => [
+        'panel' => 'Access', 'customers' => 'Customers', 'transfers' => 'Transfers', 'receipts' => 'Receipts',
+        'payment_accounts' => 'Receiving accounts', 'requests' => 'Website requests', 'announcements' => 'Announcements',
+        'settings' => 'Settings', 'files' => 'Attachments', 'users' => 'Users',
+    ],
+    'permissions' => [
+        'panel.access' => 'Sign in to the admin panel',
+        'customers.view' => 'View customers', 'customers.manage' => 'Add and edit customers', 'customers.delete' => 'Delete customers',
+        'transfers.view' => 'View transfers', 'transfers.create' => 'Create transfers', 'transfers.update' => 'Edit a transfer before approval',
+        'transfers.price' => 'Price a transfer and send the quote', 'transfers.approve' => 'Approve transfers', 'transfers.deliver' => 'Deliver transfers',
+        'transfers.cancel' => 'Cancel transfers', 'transfers.delete' => 'Delete new or cancelled transfers',
+        'receipts.manage' => 'Record receipts', 'receipts.verify' => 'Verify receipts (accept/reject)', 'receipts.deliver' => 'Deliver receipts',
+        'payment_accounts.view' => 'View receiving accounts', 'payment_accounts.manage' => 'Manage receiving accounts',
+        'requests.view' => 'View website requests', 'requests.manage' => 'Handle and convert website requests',
+        'announcements.manage' => 'Manage announcements',
+        'settings.manage' => 'Manage countries, currencies and services',
+        'files.view' => 'Open receipts and delivery proofs',
+        'users.manage' => 'Manage users and roles',
+    ],
+    'announcements' => [
+        'state' => 'State', 'states' => ['draft' => 'Draft', 'scheduled' => 'Scheduled', 'live' => 'Live', 'expired' => 'Expired'],
+        'publish_at_hint' => 'Leave empty to publish now, or pick a later time to schedule it.',
+        'expires_hint' => 'The announcement disappears from the site automatically after this time.',
+        'pinned_hint' => 'A pinned "Warning" or "Account change" announcement shows as a bar at the top of every site page.',
+        'section_content' => 'Content', 'section_publishing' => 'Publishing',
+        'view_on_site' => 'View on site',
+    ],
+];
