@@ -58,7 +58,7 @@ class AlraedPanelProvider extends PanelProvider
             ->spa()
             ->spaUrlExceptions(fn (): array => [url('/lang/*')])
             ->databaseNotifications()
-            ->databaseNotificationsPolling('60s')
+            ->databaseNotificationsPolling('30s')
             ->assets([
                 Css::make('alraed-panel', asset('css/alraed-panel.css') . '?v=' . (file_exists($css) ? filemtime($css) : '1')),
             ])
@@ -92,6 +92,7 @@ class AlraedPanelProvider extends PanelProvider
                 NavigationGroup::make(fn (): string => __('resources.groups.operations')),
                 NavigationGroup::make(fn (): string => __('resources.groups.accounts')),
                 NavigationGroup::make(fn (): string => __('resources.groups.settings'))->collapsed(),
+                NavigationGroup::make(fn (): string => __('resources.groups.system'))->collapsed(),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')

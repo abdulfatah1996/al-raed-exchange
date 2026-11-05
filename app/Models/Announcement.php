@@ -43,6 +43,24 @@ class Announcement extends Model
             ->orderByDesc('is_pinned')->orderByDesc('published_at');
     }
 
+    /** draft | scheduled | live | expired */
+    public function state(): string
+    {
+        return match (true) {
+            ! $this->is_published => 'draft',
+            $this->expires_at && $this->expires_at->isPast() => 'expired',
+            $this->published_at && $this->published_at->isFuture() => 'scheduled',
+            default => 'live',
+        };
+    }
+
+    /** The pinned warning / account-change notice shown as a bar on every site page. */
+    public static function siteBanner(): ?self
+    {
+        return static::query()->visible()->where('is_pinned', true)
+            ->whereIn('type', [AnnouncementType::Warning, AnnouncementType::AccountChange])->first();
+    }
+
     public function getTitleAttribute(): string
     {
         return (app()->getLocale() === 'en' && $this->title_en) ? $this->title_en : $this->title_ar;

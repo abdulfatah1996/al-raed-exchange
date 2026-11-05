@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\TransferStatus;
 use App\Enums\TransferType;
 use App\Exceptions\InvalidTransferTransition;
+use App\Notifications\StaffNotifier;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -59,8 +60,18 @@ class Transfer extends Model
             }
         });
 
+        static::updated(function (self $t) {
+            if ($t->wasChanged('assigned_user_id') && $t->assigned_user_id) {
+                StaffNotifier::transferAssigned($t);
+            }
+        });
+
         static::created(function (self $t) {
             $t->statusLogs()->create(['from_status' => null, 'to_status' => $t->status->value, 'user_id' => auth()->id()]);
+
+            if ($t->assigned_user_id) {
+                StaffNotifier::transferAssigned($t);
+            }
         });
     }
 
@@ -148,6 +159,8 @@ class Transfer extends Model
 
             $this->setRawAttributes($fresh->getAttributes(), true);
         });
+
+        StaffNotifier::transferStatusChanged($this, $to);
     }
 
     /** Delivery requires verified and delivered receipts, plus a delivery proof file. */

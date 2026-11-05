@@ -31,6 +31,16 @@
 <body class="min-h-screen flex flex-col">
 <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-50 focus:rounded-lg focus:bg-gold-500 focus:px-4 focus:py-2 focus:font-bold focus:text-navy-950">{{ __('web.skip') }}</a>
 
+@php $banner = \App\Models\Announcement::siteBanner(); @endphp
+@if ($banner)
+    <div class="{{ $banner->type === \App\Enums\AnnouncementType::Warning ? 'bg-bad' : 'bg-gold-500' }} {{ $banner->type === \App\Enums\AnnouncementType::Warning ? 'text-white' : 'text-navy-950' }}" role="status">
+        <a href="{{ route('site.announcements') }}" class="container-site flex items-center justify-center gap-2 py-2.5 text-center text-sm font-bold hover:underline">
+            @include('site.partials.icon', ['name' => $banner->type === \App\Enums\AnnouncementType::Warning ? 'alert' : 'megaphone', 'class' => 'size-4 shrink-0'])
+            <span>{{ $banner->title }}</span>
+        </a>
+    </div>
+@endif
+
 <header class="sticky top-0 z-40 border-b border-navy-900/8 bg-white/85 backdrop-blur-md">
     <div class="container-site flex h-16 items-center justify-between gap-4">
         <a href="{{ route('site.home') }}" aria-label="{{ __('site.brand') }}">@include('site.partials.logo', ['size' => 'size-9'])</a>

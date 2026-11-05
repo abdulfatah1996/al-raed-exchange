@@ -76,4 +76,27 @@ final class Permissions
             self::ROLE_VIEWER => $viewer,
         ];
     }
+
+    /** Display group of a permission: "transfers.approve" → "transfers", "panel.access" → "panel". */
+    public static function groupOf(string $permission): string
+    {
+        return strtok($permission, '.');
+    }
+
+    /** @return array<string, list<string>> group => permissions, in declaration order */
+    public static function grouped(): array
+    {
+        $groups = [];
+        foreach (self::all() as $permission) {
+            $groups[self::groupOf($permission)][] = $permission;
+        }
+
+        return $groups;
+    }
+
+    /** Translated label. Permission names contain dots, so they can't be used as translation key paths. */
+    public static function label(string $permission): string
+    {
+        return trans('admin.permissions')[$permission] ?? $permission;
+    }
 }

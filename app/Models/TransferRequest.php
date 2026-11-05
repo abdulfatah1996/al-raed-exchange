@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\RequestOperation;
 use App\Enums\RequestStatus;
 use App\Enums\TransferStatus;
+use App\Notifications\StaffNotifier;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +39,8 @@ class TransferRequest extends Model
             $r->phone_digits = static::digits($r->phone);
             $r->reference ??= static::newReference();
         });
+
+        static::created(fn (self $r) => StaffNotifier::newWebsiteRequest($r));
     }
 
     /** Only the digits of a phone number, last 9 kept, so "+970 59-777" and "0597 77" match. */
