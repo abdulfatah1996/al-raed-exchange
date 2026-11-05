@@ -51,4 +51,33 @@ class DemoDataCommandTest extends AlraedTestCase
         // Every delivered transfer satisfies the delivery rule it went through.
         Transfer::where('status', TransferStatus::Delivered)->get()->each(fn (Transfer $t) => $this->assertNotNull($t->delivery_proof_file));
     }
+
+    public function test_clear_data_empties_the_system_but_keeps_real_staff_and_settings(): void
+    {
+        Storage::fake('local');
+        $admin = $this->staff(Permissions::ROLE_ADMIN);
+        $employee = $this->staff(Permissions::ROLE_EMPLOYEE);
+        $this->seed(ReferenceDataSeeder::class);
+        $this->artisan('alraed:demo-data', ['--confirm' => 'DELETE', '--admin-name' => 'Admin'])->assertSuccessful();
+
+        $this->artisan('alraed:clear-data')->expectsQuestion('Type DELETE to continue', 'DELETE')->assertSuccessful();
+
+        foreach (\App\Support\DataReset::TABLES as $table) {
+            $this->assertDatabaseCount($table, 0);
+        }
+        $this->assertSame(0, User::where('email', 'like', 'demo-%@alraed.local')->count());
+        $this->assertTrue($admin->fresh()->hasRole('admin'));
+        $this->assertNotNull($employee->fresh());
+        $this->assertGreaterThan(0, \App\Models\Currency::count());
+        $this->assertSame([], Storage::disk('local')->allFiles());
+    }
+
+    public function test_clear_data_cancels_without_delete(): void
+    {
+        Customer::create(['name' => 'Kept', 'phone' => '+970599999999']);
+
+        $this->artisan('alraed:clear-data')->expectsQuestion('Type DELETE to continue', 'نعم')->assertSuccessful();
+
+        $this->assertSame(1, Customer::count());
+    }
 }
