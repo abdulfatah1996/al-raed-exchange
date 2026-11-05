@@ -26,6 +26,20 @@ use Throwable;
  */
 final class StaffNotifier
 {
+    private static bool $muted = false;
+
+    /** Run $callback without sending notifications (bulk demo data, imports). */
+    public static function muted(callable $callback): mixed
+    {
+        $previous = self::$muted;
+        self::$muted = true;
+        try {
+            return $callback();
+        } finally {
+            self::$muted = $previous;
+        }
+    }
+
     public static function newWebsiteRequest(TransferRequest $request): void
     {
         self::send(
@@ -78,6 +92,10 @@ final class StaffNotifier
 
     private static function send(Collection $recipients, string $key, array $params, string $icon, string $color, string $url): void
     {
+        if (self::$muted) {
+            return;
+        }
+
         $actorId = auth()->id();
 
         foreach ($recipients->unique('id') as $user) {
