@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "alraed/exchange",
+    "name": "laravel/laravel",
     "type": "project",
     "description": "Al Raed Exchange — money transfer and exchange management system (website + Filament admin).",
     "keywords": [
