@@ -27,6 +27,16 @@ class ReceiptsRelationManager extends RelationManager
         return __('fields.receipts');
     }
 
+    public static function getModelLabel(): string
+    {
+        return __('fields.receipt');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('fields.receipts');
+    }
+
     public function form(Schema $schema): Schema
     {
         $service = $this->getOwnerRecord()->service_id;

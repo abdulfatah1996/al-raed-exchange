@@ -17,6 +17,12 @@ class TransferStatusLog extends Model
         return ['from_status' => TransferStatus::class, 'to_status' => TransferStatus::class, 'created_at' => 'datetime'];
     }
 
+    /** Stamp with the application clock and timezone, not the database server's. */
+    protected static function booted(): void
+    {
+        static::creating(fn (self $log) => $log->created_at ??= now());
+    }
+
     public function transfer(): BelongsTo { return $this->belongsTo(Transfer::class); }
     public function user(): BelongsTo { return $this->belongsTo(User::class); }
 }

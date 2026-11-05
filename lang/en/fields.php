@@ -112,4 +112,5 @@ return array (
   'receipt_not_verifiable' => 'A receipt can only be verified while the transfer is pending verification or under review, and the receipt is pending',
   'receipt_not_deliverable' => 'A receipt can only be delivered after it is verified and the transfer is approved',
   'receipts_closed' => 'Receipts cannot be added to an approved or closed transfer',
+  'receipt' => 'Receipt',
 );
