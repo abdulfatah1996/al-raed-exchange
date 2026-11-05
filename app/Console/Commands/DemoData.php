@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\AuditLog;
 use App\Models\User;
 use App\Support\DataReset;
 use App\Support\Permissions;
@@ -61,16 +62,20 @@ class DemoData extends Command
         $this->callSilently('db:seed', ['--class' => RolesAndPermissionsSeeder::class, '--force' => true]);
         $this->callSilently('db:seed', ['--class' => ReferenceDataSeeder::class, '--force' => true]);
 
-        if ($since = $this->option('since')) {
-            $this->info('Generating history month by month (this can take a few minutes)…');
-            $summary = (new HistoricalDemoSeeder)->runHistory(
-                $admin,
-                CarbonImmutable::parse($since),
-                fn (string $month) => $this->line('  ✓ ' . $month),
-            );
-        } else {
-            $summary = (new DemoDataSeeder)->runFor($admin);
-        }
+        // Generated rows are not staff actions, so they stay out of the audit log.
+        $summary = AuditLog::muted(function () use ($admin) {
+            if ($since = $this->option('since')) {
+                $this->info('Generating history month by month (this can take a few minutes)…');
+
+                return (new HistoricalDemoSeeder)->runHistory(
+                    $admin,
+                    CarbonImmutable::parse($since),
+                    fn (string $month) => $this->line('  ✓ ' . $month),
+                );
+            }
+
+            return (new DemoDataSeeder)->runFor($admin);
+        });
 
         $this->newLine();
         $this->info('Demo data loaded:');

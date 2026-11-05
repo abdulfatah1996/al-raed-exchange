@@ -12,7 +12,7 @@ final class DataReset
 {
     /** Operational tables, children first. */
     public const TABLES = [
-        'notifications', 'transfer_requests', 'receipts', 'transfer_status_logs', 'transfers',
+        'audit_logs', 'notifications', 'transfer_requests', 'receipts', 'transfer_status_logs', 'transfers',
         'customer_notes', 'customers', 'payment_accounts', 'announcements',
     ];
 
@@ -49,11 +49,11 @@ final class DataReset
         }
 
         if ($removeDemoStaff) {
-            User::where('email', 'like', self::DEMO_STAFF_EMAILS)->get()->each(function (User $user) {
+            \App\Models\AuditLog::muted(fn () => User::where('email', 'like', self::DEMO_STAFF_EMAILS)->get()->each(function (User $user) {
                 $user->syncRoles([]);
                 DB::table('sessions')->where('user_id', $user->id)->delete();
                 $user->delete();
-            });
+            }));
         }
     }
 }

@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
+    use Concerns\Auditable;
+
     use SoftDeletes;
 
     protected $fillable = ['code', 'name', 'phone', 'whatsapp', 'country_id', 'status', 'kyc_status', 'notes', 'created_by'];

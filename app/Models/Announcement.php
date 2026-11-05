@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Announcement extends Model
 {
+    use Concerns\Auditable;
+
     protected $fillable = [
         'type', 'title_ar', 'title_en', 'body_ar', 'body_en', 'is_published', 'is_pinned', 'published_at', 'expires_at',
     ];

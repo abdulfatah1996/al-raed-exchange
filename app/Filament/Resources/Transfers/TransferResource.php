@@ -13,6 +13,8 @@ use App\Filament\Resources\Transfers\RelationManagers\StatusLogsRelationManager;
 use App\Models\Customer;
 use App\Models\PaymentAccount;
 use App\Models\Transfer;
+use App\Filament\Tables\ExpandableRow;
+use Filament\Actions\ActionGroup;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Forms\Components\DateTimePicker;
@@ -105,28 +107,51 @@ class TransferResource extends Resource
 
     public static function table(Table $table): Table
     {
-        $money = fn ($state, ?string $code) => $state === null ? '—' : rtrim(rtrim(number_format((float) $state, 8, '.', ','), '0'), '.') . ' ' . ($code ?? '');
+        $n = static::nameColumn();
 
         return $table
-            ->columns([
-                TextColumn::make('reference')->label(__('fields.reference'))->searchable()->sortable()->weight('bold')->fontFamily('mono')->copyable(),
-                TextColumn::make('customer.name')->label(__('fields.customer'))->searchable()->sortable(),
-                TextColumn::make('type')->label(__('fields.type'))->badge()->color('gray'),
-                TextColumn::make('service.' . static::nameColumn())->label(__('fields.service'))->placeholder('—')->toggleable(),
-                TextColumn::make('send_amount')->label(__('fields.send_amount'))->formatStateUsing(fn ($state, Transfer $r) => $money($state, $r->sendCurrency?->code))->sortable(),
-                TextColumn::make('deliver_amount')->label(__('fields.deliver_amount'))->formatStateUsing(fn ($state, Transfer $r) => $money($state, $r->deliverCurrency?->code))->sortable(),
-                TextColumn::make('status')->label(__('fields.status'))->badge(),
-                TextColumn::make('assignedUser.name')->label(__('fields.assigned_user'))->placeholder('—')->toggleable(),
-                TextColumn::make('created_at')->label(__('fields.created_at'))->dateTime('Y-m-d H:i')->sortable()->toggleable(),
-            ])
+            ->modifyQueryUsing(fn ($query) => $query->with([
+                'customer', 'service', 'country', 'sendCurrency', 'deliverCurrency', 'feeCurrency',
+                'deliveryMethod', 'paymentAccount', 'assignedUser', 'creator',
+            ]))
+            ->columns(ExpandableRow::columns([
+                ExpandableRow::labelled(TextColumn::make('reference')->label(__('fields.reference'))->searchable()->sortable()->weight('bold')->fontFamily('mono')),
+                ExpandableRow::labelled(TextColumn::make('customer.name')->label(__('fields.customer'))->searchable()->sortable()->wrap()),
+                ExpandableRow::labelled(TextColumn::make('send_amount')->label(__('fields.send_amount'))->sortable()
+                    ->formatStateUsing(fn ($state, Transfer $r) => ExpandableRow::money($state, $r->sendCurrency?->code))),
+                ExpandableRow::labelled(TextColumn::make('status')->label(__('fields.status'))->badge()),
+                ExpandableRow::labelled(ExpandableRow::dateTime('created_at')->label(__('fields.created_at'))->sortable()),
+            ], fn (Transfer $r) => [
+                __('fields.type') => $r->type,
+                __('fields.service') => $r->service?->{$n},
+                __('fields.country') => $r->country?->{$n},
+                __('fields.send_amount') => ExpandableRow::money($r->send_amount, $r->sendCurrency?->code),
+                __('fields.deliver_amount') => ExpandableRow::money($r->deliver_amount, $r->deliverCurrency?->code),
+                __('fields.rate') => $r->rate === null ? null : rtrim(rtrim((string) $r->rate, '0'), '.'),
+                __('fields.fee_amount') => ExpandableRow::money($r->fee_amount, $r->feeCurrency?->code),
+                __('fields.commission_amount') => ExpandableRow::money($r->commission_amount, null),
+                __('fields.delivery_method') => $r->deliveryMethod?->{$n},
+                __('fields.payment_account') => $r->paymentAccount?->internal_name,
+                __('fields.sender_name') => $r->sender_name,
+                __('fields.beneficiary_name') => $r->beneficiary_name,
+                __('fields.external_ref') => ExpandableRow::code($r->external_ref),
+                __('fields.assigned_user') => $r->assignedUser?->name,
+                __('fields.created_by') => $r->creator?->name,
+                __('admin.common.priced_at') => $r->priced_at,
+                __('admin.common.approved_at') => $r->approved_at,
+                __('admin.common.delivered_at') => $r->delivered_at,
+                __('fields.scheduled_at') => $r->scheduled_at,
+                __('fields.internal_notes') => ExpandableRow::wide($r->internal_notes),
+            ]))
             ->defaultSort('id', 'desc')
             ->filters([
                 SelectFilter::make('status')->label(__('fields.status'))->options(TransferStatus::class)->multiple(),
                 SelectFilter::make('type')->label(__('fields.type'))->options(TransferType::class),
-                SelectFilter::make('service_id')->label(__('fields.service'))->relationship('service', static::nameColumn())->preload(),
+                SelectFilter::make('service_id')->label(__('fields.service'))->relationship('service', $n)->preload(),
                 SelectFilter::make('assigned_user_id')->label(__('fields.assigned_user'))->relationship('assignedUser', 'name')->preload(),
             ])
-            ->recordActions([ViewAction::make(), EditAction::make()])
+            ->recordUrl(null)->recordAction(null)
+            ->recordActions([ActionGroup::make([ViewAction::make(), EditAction::make()])])
             ->paginated([25, 50, 100]);
     }
 

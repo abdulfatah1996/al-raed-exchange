@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Users;
 
+use Filament\Actions\ActionGroup;
+use App\Filament\Tables\ExpandableRow;
 use App\Filament\Resources\Users\Pages\CreateUser;
 use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
@@ -16,7 +18,6 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -79,23 +80,27 @@ class UserResource extends Resource
     {
         return $table
             ->modifyQueryUsing(fn ($query) => $query->with('roles'))
-            ->columns([
-                TextColumn::make('name')->label(__('admin.users.name'))->searchable()->sortable()->weight('bold')
-                    ->description(fn (User $u) => $u->email),
-                TextColumn::make('roles.name')->label(__('admin.users.role'))->badge()->color('primary')
-                    ->formatStateUsing(fn (string $state) => __("dashboard.roles.$state")),
-                IconColumn::make('is_active')->label(__('admin.users.active'))->boolean(),
-                IconColumn::make('mfa')->label(__('admin.users.mfa'))->boolean()
-                    ->state(fn (User $u) => $u->hasAppAuthentication()),
-                TextColumn::make('created_at')->label(__('admin.users.created_at'))->date('Y-m-d')->sortable()->toggleable(),
-            ])
+            ->columns(ExpandableRow::columns([
+                ExpandableRow::labelled(TextColumn::make('name')->label(__('admin.users.name'))->searchable()->sortable()->weight('bold')->wrap()),
+                ExpandableRow::labelled(TextColumn::make('roles.name')->label(__('admin.users.role'))->badge()->color('primary')
+                    ->formatStateUsing(fn (string $state) => __("dashboard.roles.$state"))),
+                ExpandableRow::labelled(ExpandableRow::yesNo('is_active')->label(__('admin.users.active'))),
+                ExpandableRow::labelled(ExpandableRow::yesNo('mfa')->label(__('admin.users.mfa'))
+                    ->state(fn (User $u) => $u->hasAppAuthentication())),
+            ], fn (User $u) => [
+                __('admin.users.email') => ExpandableRow::code($u->email),
+                __('admin.users.locale') => $u->locale ? strtoupper($u->locale) : null,
+                __('admin.users.created_at') => $u->created_at,
+                __('fields.updated_at') => $u->updated_at,
+            ]))
             ->defaultSort('name')
             ->filters([
                 SelectFilter::make('role')->label(__('admin.users.role'))->options(static::roleOptions())
                     ->query(fn ($query, array $data) => $data['value'] ? $query->role($data['value']) : $query),
                 TernaryFilter::make('is_active')->label(__('admin.users.active')),
             ])
-            ->recordActions([
+            ->recordUrl(null)->recordAction(null)
+            ->recordActions([ActionGroup::make([
                 EditAction::make(),
                 Action::make('toggleActive')
                     ->label(fn (User $u) => $u->is_active ? __('admin.users.deactivate') : __('admin.users.activate'))
@@ -117,7 +122,7 @@ class UserResource extends Resource
                         $u->saveAppAuthenticationRecoveryCodes(null);
                         Notification::make()->title(__('admin.users.mfa_reset_done'))->success()->send();
                     }),
-            ]);
+            ])->tooltip(__('admin.common.actions'))]);
     }
 
     public static function getPages(): array

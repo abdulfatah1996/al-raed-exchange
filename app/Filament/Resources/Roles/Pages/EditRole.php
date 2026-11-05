@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Roles\Pages;
 
+use App\Models\AuditLog;
 use App\Filament\Resources\Roles\RoleResource;
 use App\Support\Permissions;
 use Filament\Resources\Pages\EditRecord;
@@ -42,7 +43,14 @@ class EditRole extends EditRecord
             ->intersect(Permissions::all())   // ignore anything not in the catalogue
             ->values()->all();
 
+        $before = $record->permissions->pluck('name')->sort()->values()->all();
         $record->syncPermissions($selected);
+
+        $added = array_values(array_diff($selected, $before));
+        $removed = array_values(array_diff($before, $selected));
+        if ($added || $removed) {
+            AuditLog::record($record, 'permissions_changed', ['removed' => $removed], ['added' => $added]);
+        }
 
         return $record;
     }

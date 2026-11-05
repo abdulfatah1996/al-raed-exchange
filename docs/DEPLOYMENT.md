@@ -36,6 +36,7 @@
 | `SESSION_DRIVER` | `database` |
 | `ALRAED_REQUIRE_MFA` | `true` أو بدون قيمة (الافتراضي إلزامي) |
 | `ALRAED_WHATSAPP` / `ALRAED_WHATSAPP_DISPLAY` | رقم واتساب الرسمي (اختياري، وله قيمة افتراضية) |
+| `SESSION_SECURE_COOKIE` / `SESSION_ENCRYPT` | بدون قيمة: في `production` يكونان `true` تلقائيًا (كوكي عبر HTTPS فقط، وجلسة مشفّرة) |
 
 القائمة الكاملة في `.env.example`. بعد أي تعديل على `.env` شغّل:
 
@@ -127,5 +128,7 @@ DB=$(php -r 'require "vendor/autoload.php"; $app = require "bootstrap/app.php"; 
 - [ ] الدخول إلى `/alraed` يطلب التحقق بخطوتين.
 - [ ] رابط إيصال من حوالة يفتح للموظف، ويعطي خطأ 404 أو 403 لغير المسجّل.
 - [ ] `git status` على السيرفر نظيف (لا تعديلات محلية).
+- [ ] `curl -sI https://<الدومين>/ | grep -iE "x-frame|content-security|strict-transport"` يعرض الترويسات الأمنية.
+- [ ] `curl -sI http://<الدومين>/` يحوّل إلى `https` (الكوكي الآمن لا يعمل على http).
 
 </div>

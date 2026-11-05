@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Receipt extends Model
 {
+    use Concerns\Auditable;
+
     use SoftDeletes;
 
     protected $fillable = [

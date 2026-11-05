@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Customers;
 
+use Filament\Actions\ActionGroup;
+use App\Filament\Tables\ExpandableRow;
 use App\Enums\CustomerStatus;
 use App\Enums\KycStatus;
 use App\Filament\Resources\Customers\Pages\CreateCustomer;
@@ -89,17 +91,21 @@ class CustomerResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                TextColumn::make('code')->label(__('fields.customer_code'))->searchable()->sortable()->weight('bold')->fontFamily('mono'),
-                TextColumn::make('name')->label(__('fields.full_name'))->searchable()->sortable(),
-                TextColumn::make('phone')->label(__('fields.phone'))->searchable()->copyable(),
-                TextColumn::make('whatsapp')->label(__('fields.whatsapp'))->searchable()->toggleable()
-                    ->url(fn (Customer $r) => $r->whatsapp_url, shouldOpenInNewTab: true)->icon('heroicon-o-chat-bubble-left-right'),
-                TextColumn::make('country.' . static::nameColumn())->label(__('fields.country'))->placeholder('—')->toggleable(),
-                TextColumn::make('status')->label(__('fields.status'))->badge(),
-                TextColumn::make('kyc_status')->label(__('fields.kyc_status'))->badge(),
-                TextColumn::make('created_at')->label(__('fields.created_at'))->dateTime('Y-m-d')->sortable()->toggleable(isToggledHiddenByDefault: true),
-            ])
+            ->modifyQueryUsing(fn ($query) => $query->with(['country', 'creator']))
+            ->columns(ExpandableRow::columns([
+                ExpandableRow::labelled(TextColumn::make('code')->label(__('fields.customer_code'))->searchable()->sortable()->weight('bold')->fontFamily('mono')),
+                ExpandableRow::labelled(TextColumn::make('name')->label(__('fields.full_name'))->searchable()->sortable()->wrap()),
+                ExpandableRow::labelled(TextColumn::make('phone')->label(__('fields.phone'))->searchable()
+                    ->formatStateUsing(fn ($state) => ExpandableRow::ltr($state))),
+                ExpandableRow::labelled(TextColumn::make('status')->label(__('fields.status'))->badge()),
+                ExpandableRow::labelled(TextColumn::make('kyc_status')->label(__('fields.kyc_status'))->badge()),
+            ], fn (Customer $r) => [
+                __('fields.whatsapp') => ExpandableRow::code($r->whatsapp),
+                __('fields.country') => $r->country?->{static::nameColumn()},
+                __('fields.created_at') => $r->created_at,
+                __('fields.created_by') => $r->creator?->name,
+                __('fields.notes') => ExpandableRow::wide($r->notes),
+            ]))
             ->defaultSort('id', 'desc')
             ->filters([
                 SelectFilter::make('status')->label(__('fields.status'))->options(CustomerStatus::class),
@@ -107,11 +113,12 @@ class CustomerResource extends Resource
                 SelectFilter::make('country_id')->label(__('fields.country'))->relationship('country', static::nameColumn())->preload(),
                 TrashedFilter::make(),
             ])
-            ->recordActions([
+            ->recordUrl(null)->recordAction(null)
+            ->recordActions([ActionGroup::make([
                 EditAction::make(),
                 Action::make('whatsapp')->label('WhatsApp')->icon('heroicon-o-chat-bubble-left-right')->color('success')
                     ->url(fn (Customer $r) => $r->whatsapp_url, shouldOpenInNewTab: true)->visible(fn (Customer $r) => (bool) $r->whatsapp_url),
-            ])
+            ])->tooltip(__('admin.common.actions'))])
             ->paginated([25, 50, 100]);
     }
 

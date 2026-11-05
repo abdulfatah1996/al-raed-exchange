@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\PaymentAccounts;
 
+use Filament\Actions\ActionGroup;
+use App\Filament\Tables\ExpandableRow;
 use App\Enums\PaymentAccountStatus;
 use App\Enums\PaymentAccountType;
 use App\Filament\Resources\PaymentAccounts\Pages\ManagePaymentAccounts;
@@ -103,24 +105,33 @@ class PaymentAccountResource extends ReferenceResource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([
-                TextColumn::make('internal_name')->label(__('fields.internal_name'))->searchable()->sortable()->weight('bold'),
-                TextColumn::make('type')->label(__('fields.type'))->badge()->color('info'),
-                TextColumn::make('service.' . static::nameColumn())->label(__('fields.service'))->placeholder('—')->toggleable(),
-                TextColumn::make('country.' . static::nameColumn())->label(__('fields.country'))->placeholder('—')->toggleable(),
-                TextColumn::make('currency.code')->label(__('fields.currency'))->badge()->placeholder('—'),
-                TextColumn::make('beneficiary_name')->label(__('fields.beneficiary_name'))->placeholder('—')->toggleable(),
-                TextColumn::make('masked_summary')->label(__('fields.masked_summary'))->fontFamily('mono'),
-                TextColumn::make('status')->label(__('fields.status'))->badge(),
-                TextColumn::make('last_verified_at')->label(__('fields.last_verified_at'))->since()->placeholder('—')->toggleable(),
-            ])
+            ->modifyQueryUsing(fn ($query) => $query->with(['service', 'country', 'currency', 'creator']))
+            ->columns(ExpandableRow::columns([
+                ExpandableRow::labelled(TextColumn::make('internal_name')->label(__('fields.internal_name'))->searchable()->sortable()->weight('bold')->wrap()),
+                ExpandableRow::labelled(TextColumn::make('type')->label(__('fields.type'))->badge()->color('info')),
+                ExpandableRow::labelled(TextColumn::make('currency.code')->label(__('fields.currency'))->placeholder('—')),
+                ExpandableRow::labelled(TextColumn::make('masked_summary')->label(__('fields.masked_summary'))->fontFamily('mono')
+                    ->formatStateUsing(fn ($state) => ExpandableRow::ltr($state))),
+                ExpandableRow::labelled(TextColumn::make('status')->label(__('fields.status'))->badge()),
+            ], fn (PaymentAccount $r) => [
+                __('fields.service') => $r->service?->{static::nameColumn()},
+                __('fields.country') => $r->country?->{static::nameColumn()},
+                __('fields.beneficiary_name') => $r->beneficiary_name,
+                __('fields.min_amount') => ExpandableRow::money($r->min_amount, $r->currency?->code),
+                __('fields.max_amount') => ExpandableRow::money($r->max_amount, $r->currency?->code),
+                __('fields.daily_cap') => ExpandableRow::money($r->daily_cap, $r->currency?->code),
+                __('fields.last_verified_at') => $r->last_verified_at,
+                __('fields.created_by') => $r->creator?->name,
+                __('fields.notes') => ExpandableRow::wide($r->notes),
+            ]))
             ->defaultSort('status')
             ->filters([
                 SelectFilter::make('type')->label(__('fields.type'))->options(PaymentAccountType::class),
                 SelectFilter::make('status')->label(__('fields.status'))->options(PaymentAccountStatus::class),
                 SelectFilter::make('country_id')->label(__('fields.country'))->relationship('country', static::nameColumn())->preload(),
             ])
-            ->recordActions([
+            ->recordUrl(null)->recordAction(null)
+            ->recordActions([ActionGroup::make([
                 EditAction::make()->modalWidth('4xl'),
                 Action::make('pause')->label(__('enums.payment_account_status.paused'))->icon('heroicon-o-pause-circle')->color('warning')
                     ->visible(fn (PaymentAccount $r) => $r->status === PaymentAccountStatus::Active)
@@ -131,7 +142,7 @@ class PaymentAccountResource extends ReferenceResource
                 Action::make('retire')->label(__('enums.payment_account_status.retired'))->icon('heroicon-o-archive-box-x-mark')->color('gray')
                     ->visible(fn (PaymentAccount $r) => $r->status !== PaymentAccountStatus::Retired)
                     ->requiresConfirmation()->action(fn (PaymentAccount $r) => $r->update(['status' => PaymentAccountStatus::Retired])),
-            ])
+            ])->tooltip(__('admin.common.actions'))])
             ->paginated([25, 50, 100]);
     }
 

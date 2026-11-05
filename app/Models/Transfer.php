@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\DB;
 
 class Transfer extends Model
 {
+    use Concerns\Auditable;
+
     use SoftDeletes;
 
     protected $fillable = [

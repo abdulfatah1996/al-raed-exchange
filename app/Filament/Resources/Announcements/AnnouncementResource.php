@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\Announcements;
 
+use Filament\Actions\ActionGroup;
+use App\Filament\Tables\ExpandableRow;
 use App\Enums\AnnouncementType;
 use App\Filament\Resources\Announcements\Pages\ManageAnnouncements;
 use App\Models\Announcement;
@@ -63,17 +65,22 @@ class AnnouncementResource extends Resource
         $states = __('admin.announcements.states');
 
         return $table
-            ->columns([
-                TextColumn::make('title_ar')->label(__('web.admin.title_ar'))->searchable(['title_ar', 'title_en'])->limit(60)->weight('bold')
-                    ->icon(fn (Announcement $a) => $a->is_pinned ? 'heroicon-m-bookmark' : null)->iconColor('warning'),
-                TextColumn::make('type')->label(__('web.admin.type'))->badge(),
-                TextColumn::make('state')->label(__('admin.announcements.state'))->badge()
+            ->columns(ExpandableRow::columns([
+                ExpandableRow::labelled(TextColumn::make('title_ar')->label(__('web.admin.title_ar'))->searchable(['title_ar', 'title_en'])->limit(60)->weight('bold')->wrap()
+                    ->icon(fn (Announcement $a) => $a->is_pinned ? 'heroicon-m-bookmark' : null)->iconColor('warning')),
+                ExpandableRow::labelled(TextColumn::make('type')->label(__('web.admin.type'))->badge()),
+                ExpandableRow::labelled(TextColumn::make('state')->label(__('admin.announcements.state'))->badge()
                     ->state(fn (Announcement $a) => $a->state())
                     ->formatStateUsing(fn (string $state) => $states[$state] ?? $state)
-                    ->color(fn (string $state) => ['live' => 'success', 'scheduled' => 'info', 'expired' => 'gray', 'draft' => 'warning'][$state] ?? 'gray'),
-                TextColumn::make('published_at')->label(__('web.admin.published_at'))->dateTime('Y-m-d H:i')->sortable()->placeholder('—'),
-                TextColumn::make('expires_at')->label(__('web.admin.expires_at'))->dateTime('Y-m-d H:i')->placeholder('—')->toggleable(),
-            ])
+                    ->color(fn (string $state) => ['live' => 'success', 'scheduled' => 'info', 'expired' => 'gray', 'draft' => 'warning'][$state] ?? 'gray')),
+                ExpandableRow::labelled(ExpandableRow::dateTime('published_at')->label(__('web.admin.published_at'))->sortable()),
+            ], fn (Announcement $a) => [
+                __('web.admin.title_en') => $a->title_en,
+                __('web.admin.expires_at') => $a->expires_at,
+                __('admin.common.pinned') => $a->is_pinned,
+                __('web.admin.body_ar') => ExpandableRow::wide($a->body_ar),
+                __('web.admin.body_en') => ExpandableRow::wide($a->body_en),
+            ]))
             ->defaultSort('id', 'desc')
             ->filters([
                 SelectFilter::make('type')->label(__('web.admin.type'))->options(AnnouncementType::class),
@@ -86,13 +93,14 @@ class AnnouncementResource extends Resource
                         default => $q,
                     }),
             ])
-            ->recordActions([
+            ->recordUrl(null)->recordAction(null)
+            ->recordActions([ActionGroup::make([
                 Action::make('viewOnSite')->label(__('admin.announcements.view_on_site'))->icon('heroicon-o-arrow-top-right-on-square')->color('gray')
                     ->url(route('site.announcements'), shouldOpenInNewTab: true)
                     ->visible(fn (Announcement $a) => $a->state() === 'live'),
                 EditAction::make(),
                 DeleteAction::make(),
-            ]);
+            ])->tooltip(__('admin.common.actions'))]);
     }
 
     public static function getPages(): array

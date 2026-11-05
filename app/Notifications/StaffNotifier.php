@@ -98,6 +98,11 @@ final class StaffNotifier
 
         $actorId = auth()->id();
 
+        // Names and notes come from the public request form. Filament renders the title and body
+        // through an HTML sanitizer that still allows links and images, so escape every value here
+        // and let the notification show it as plain text.
+        $params = array_map(fn ($v) => is_scalar($v) ? e((string) $v) : $v, $params);
+
         foreach ($recipients->unique('id') as $user) {
             if ($user->id === $actorId) {
                 continue; // nobody needs to be told about their own action
